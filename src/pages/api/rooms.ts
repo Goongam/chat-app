@@ -14,3 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     });
   
 };
+
+// const nextConfig = {
+//     reactStrictMode: true,
+
+//   };
+  
+//   module.exports = nextConfig;

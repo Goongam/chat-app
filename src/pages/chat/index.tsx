@@ -24,28 +24,32 @@ export default function Room(){
     const socketInit = async () =>{
         console.log('연결');
 
-        const userName = prompt('사용할 이름을 입력해 주세요') || '';
-
         // await fetch("/api/socketio");
         socket = io({
-        path: "/api/socketio",
+            path: "/api/socketio",
         });
-
         socket.connect();
-
+        
         //방 생성 버튼
         if(createRoom === 'true')
-        socket.emit('join','',room);
+            socket.emit('join','',room);
         //url접근
         else{
-            const {rooms} = await(await fetch('http://localhost:3000/api/rooms')).json();
+            const {rooms} = await(await fetch('/api/rooms')).json();
             if(rooms.includes(room)){ //방 O
                 socket.emit('join','',room);
             }else{ //방X
                 alert('존재하지 않는 채팅방 입니다.');
                 router.push('/');
+                return;
             }
         }
+
+        const userName = prompt('사용할 이름을 입력해 주세요') || '';
+
+        
+
+        
 
 
         socket.on('chat', (message) => {
