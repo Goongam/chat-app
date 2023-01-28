@@ -3,22 +3,10 @@ import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
 import io from "socket.io-client";
 
-interface Socket{
-    emit: (type: string, req?: {}, req2?:{}) => void;
-    on: (type: string, callback: (res: any) => void) => void;
-    connect: () => void;
-}
-
-type Chat = Array<string>;
-
-let socket: Socket;
 
 export default function Home() {
   
-  const [inputMsg, setInputMsg] = useState<string>('');
-  const [inputRoom, setInputRoom] = useState<string>('');
-  const [chat, setChat] = useState<Chat>([]);
-  const [room, setRoom] = useState("null");
+  // const [room, setRoom] = useState("null");
   const [roomList, setRoomList] = useState<string[]>();
   
   const router = useRouter();
@@ -29,11 +17,6 @@ export default function Home() {
         await fetch("/api/socketio");
     })();
   },[])
-
-
-  const joinRoom = (newRoom: string) =>{
-    socket.emit('join',room,newRoom);
-  }
 
   const roomlist = async()=>{
     // socket.emit('rooms');
@@ -59,8 +42,7 @@ export default function Home() {
             createRoom: true,
         },
        },
-       `/`,
-       );
+       `/`);
 
   }
 
@@ -75,7 +57,7 @@ export default function Home() {
       <button onClick={roomlist}>방목록</button>
       {
         roomList?.map((r, index) => {
-          if(room !== r){
+
             return(
               <div key={index}>
                 <Link 
@@ -83,7 +65,7 @@ export default function Home() {
                 pathname:'chat',
                 query: {
                     room: r,
-                    createRoom: true,
+                    // createRoom: true,
                 },
                }}
                as={'/'}
@@ -92,22 +74,10 @@ export default function Home() {
               </Link>
               </div>
             );
-          }
+          
           
         })
       }
-      {/* <h4>방:{room}</h4>
-      <input 
-        type={"Text"}
-        onChange={(e)=>{setInputMsg(e.target.value)}}
-        value={inputMsg}
-      />
-      <button onClick={sendMsg}>전송</button>
-      <div style={{width:"300px", border:"1px solid black", minHeight:"100px"}}>
-        {chat.map((msg, index) => (
-          <div key={index}>{msg}</div>
-        ))}
-      </div> */}
     </>
   )
 }

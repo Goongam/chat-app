@@ -1,3 +1,4 @@
+import { doCopy } from "@/util/doCopy";
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -6,17 +7,21 @@ import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
 
-type Chat = Array<string>
+interface Chat{
+    userName: string,
+    message: string,
+}
 
-export default function Room(){
+type Chats = Array<Chat>
+let userName: string|null;
+export default function Room({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
     const [inputMsg, setInputMsg] = useState<string>('');
-    const [chat, setChat] = useState<Chat>([]);
+    const [chat, setChat] = useState<Chats>([]);
 
     const router = useRouter();
     const {room, createRoom} = router.query;
-
-//TODO: 유저이름 추가
+    
     useEffect(()=>{
         if(room) socketInit();
     },[room, createRoom]);
@@ -29,31 +34,29 @@ export default function Room(){
             path: "/api/socketio",
         });
         socket.connect();
-        
         //방 생성 버튼
-        if(createRoom === 'true')
-            socket.emit('join','',room);
+        if(createRoom === 'true'){
+            joinRoom();
+        }   
         //url접근
         else{
             const {rooms} = await(await fetch('/api/rooms')).json();
+
             if(rooms.includes(room)){ //방 O
-                socket.emit('join','',room);
+                joinRoom();
+
             }else{ //방X
                 alert('존재하지 않는 채팅방 입니다.');
                 router.push('/');
                 return;
+
             }
         }
 
-        const userName = prompt('사용할 이름을 입력해 주세요') || '';
-
         
 
-        
-
-
-        socket.on('chat', (message) => {
-        setChat((prev) => [...prev, message]);
+        socket.on('chat', (userName, message) => {
+            setChat((prev) => [...prev, {userName, message}]);
 
         })
 
@@ -62,7 +65,7 @@ export default function Room(){
         });
 
         window.onpopstate = e => {
-        socket.close();
+            socket.close();
         };
     //   socket.on('rooms', (rooms)=>{
     //     setRoomList(rooms);
@@ -73,25 +76,48 @@ export default function Room(){
     //   });
     }
 
-    const sendMsg = () =>{
-        socket.emit("chat", inputMsg, room);
-        setInputMsg("");
-      }
+    const joinRoom = () =>{
+        userName = prompt('사용할 이름을 입력해 주세요');
+        if(!userName){
+            router.push('/');
+            return;
+        }
 
+
+        socket.emit('join',userName,'',room);
+    }
+
+    const sendMsg = () =>{
+        if(inputMsg){
+            socket.emit("chat", inputMsg, userName, room);
+            setInputMsg("");
+        }     
+      }
+    const exitRoom = ()=>{
+        socket.close();
+        router.push('/');
+    }
+    const invite = () =>{
+        const url = `${host}/invite/${room}`;
+        doCopy(url);
+    }
+    
     if(!room) return <>찾을 수 없는 채팅 방</>;
 
     return (
     <>
         <h4>방:{room}</h4>
         <input 
-        type={"Text"}
-        onChange={(e)=>{setInputMsg(e.target.value)}}
-        value={inputMsg}
+            type={"Text"}
+            onChange={(e)=>{setInputMsg(e.target.value)}}
+            value={inputMsg}
         />
         <button onClick={sendMsg}>전송</button>
+        <button onClick={exitRoom}>퇴장</button>
+        <button onClick={invite}>초대url복사</button>
         <div style={{width:"300px", border:"1px solid black", minHeight:"100px"}}>
-        {chat.map((msg, index) => (
-            <div key={index}>{msg}</div>
+        {chat.map((chat, index) => (
+            <div key={index}>{chat.userName}: {chat.message}</div>
         ))}
         </div>
     </>
@@ -100,12 +126,12 @@ export default function Room(){
 
 
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
-    const forwarded = req.headers['x-forwarded-for'];
+    const host = req.headers.host
 
     // const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress
     return {
       props: {
-        // ip,
+        host
       },
     }
   }

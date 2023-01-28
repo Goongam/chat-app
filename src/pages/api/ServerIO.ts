@@ -29,4 +29,10 @@ export function changeRoom(socket: Socket, currentRoom:string, newRoom:string)  
     socket.leave(currentRoom);
     socket.join(newRoom);
     socket.emit('roomChanged',newRoom);
-  }
+}
+
+export class Socket_user{
+  user = {};
+  joinUser(){};
+  leaveUser(){};
+}
