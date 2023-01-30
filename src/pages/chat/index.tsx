@@ -20,11 +20,11 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
     const [chat, setChat] = useState<Chats>([]);
 
     const router = useRouter();
-    const {room, createRoom} = router.query;
+    const {room, create} = router.query;
     
     useEffect(()=>{
         if(room) socketInit();
-    },[room, createRoom]);
+    },[room, create]);
 
     const socketInit = async () =>{
         console.log('연결');
@@ -35,26 +35,24 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         });
         socket.connect();
         //방 생성 버튼
-        if(createRoom === 'true'){
-            joinRoom();
-        }   
+         
         //url접근
-        else{
-            const {rooms} = await(await fetch('/api/rooms')).json();
 
-            if(rooms.includes(room)){ //방 O
-                joinRoom();
+        const {rooms} = await(await fetch('/api/rooms')).json();
 
-            }else{ //방X
+        if(rooms.includes(room)){ //방 O
+            joinRoom();
+
+        }else{ //방X
+            if(create === 'true'){
+                createRoom();
+            }else{
                 alert('존재하지 않는 채팅방 입니다.');
                 router.push('/');
                 return;
-
             }
         }
-
-        
-
+    
         socket.on('chat', (userName, message) => {
             setChat((prev) => [...prev, {userName, message}]);
 
@@ -82,10 +80,18 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
             router.push('/');
             return;
         }
-
-
         socket.emit('join',userName,'',room);
     }
+
+    const createRoom = () =>{
+        userName = prompt('사용할 이름을 입력해 주세요');
+        if(!userName){
+            router.push('/');
+            return;
+        }
+        socket.emit('create',userName,room);
+    }
+
 
     const sendMsg = () =>{
         if(inputMsg){

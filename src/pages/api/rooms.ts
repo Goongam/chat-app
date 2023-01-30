@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     const rooms = getRooms(res.socket.server.io);
 
     console.log('rooms:',rooms);
-
     res.status(201).json({
         rooms: rooms,
     });

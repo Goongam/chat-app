@@ -25,7 +25,6 @@ export default function Home() {
   }
 
   const createRoom = async() =>{
-    // socket.emit('createRoom',room,inputRoom);
     const roomName = prompt('방제목 입력');
     if(roomName === null) return;
 
@@ -39,7 +38,7 @@ export default function Home() {
         pathname:'chat',
         query: {
             room: roomName,
-            createRoom: true,
+            create: true,
         },
        },
        `/`);

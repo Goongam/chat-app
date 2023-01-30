@@ -3,7 +3,7 @@ import { NextApiResponseServerIO } from './types/chat';
 import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
 
-import { changeRoom, getIO, getRooms } from "./ServerIO";
+import { changeRoom, getIO, getRooms, registerUser } from "./ServerIO";
 
 export const config = {
   api: {
@@ -30,25 +30,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     res.socket.server.io = io;
     
-
+//TODO: 1. 닉네임 중복 시 suffix붙이기
+//      2. socket.id 바꾸기 테스트
 
     io.on('connection', (socket) =>{
         
         socket.on("chat", (message, nick, room) => {
-            io.to(room).emit("chat",nick, message);
-            // socket.emit("pchat","개인채팅");
 
+            io.to(room).emit("chat",socket_users.get(socket.id), message);
+            // socket.emit("pchat","개인채팅");
         });
 
         socket.on('join',(userName, currentRoom, newRoom)=>{
+          // socket_users.set(socket.id, nick);
 
-          
-          socket_users.set(socket.id, userName);
-          console.log(socket_users);
+          // io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
+          //   let suffixNum = 2;
+          //   while(socket_users.get(socketid) === nick){
+          //     nick = userName + suffixNum++;
+          //   }
+          //   socket_users.set(socket.id, nick);
+          // });
+          let nick = registerUser(io, socket_users, userName, newRoom);
+          socket_users.set(socket.id, nick);
           changeRoom(socket, currentRoom, newRoom);
         });
 
+        socket.on('create', (userName, roomName) => {
 
+          if(!(io.of('/').adapter.rooms.get(roomName)?.size)){
+            socket_users.set(socket.id, userName);
+            changeRoom(socket, '', roomName);
+          }else{ //비정상 접근
+            console.log('비정상 접근');
+          }
+
+        });
 
         socket.on('rooms', ()=>{
            socket.emit('rooms',getRooms(io));
