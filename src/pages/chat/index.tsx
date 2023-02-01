@@ -121,7 +121,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         <button onClick={sendMsg}>전송</button>
         <button onClick={exitRoom}>퇴장</button>
         <button onClick={invite}>초대url복사</button>
-        <div style={{width:"300px", border:"1px solid black", minHeight:"100px"}}>
+        <div>
         {chat.map((chat, index) => (
             <div key={index}>{chat.userName}: {chat.message}</div>
         ))}

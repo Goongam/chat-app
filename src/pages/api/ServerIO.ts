@@ -1,7 +1,14 @@
 import { NextApiRequest } from "next";
 import { NextApiResponseServerIO } from './types/chat';
-import { Server as ServerIO, Socket } from "socket.io";
-import { Server as NetServer } from "http";
+import { RemoteSocket, Server as ServerIO, Socket } from "socket.io";
+import { Server as NetServer, Server } from "http";
+import { DefaultEventsMap, EventsMap } from "socket.io/dist/typed-events";
+import { SocketWithNick } from "./socketio";
+
+
+interface fetchSocket extends RemoteSocket<EventsMap, any>{
+  nickName?: string,
+}
 
 
 export function getIO(res: NextApiResponseServerIO){
@@ -31,29 +38,39 @@ export function changeRoom(socket: Socket, currentRoom:string, newRoom:string)  
     socket.emit('roomChanged',newRoom);
 }
 
-export function registerUser(io: ServerIO, socket_users:Map<string, string>, userName:string, newRoom:string){
+export async function registerUser(io: ServerIO, userName:string, newRoom:string){
   let nick = userName;
-  console.log(nick);
-  console.log(socket_users);
-  // io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
-  //   let suffixNum = 1;
-  //   while(socket_users.get(socketid) === nick){
-  //     console.log(socket_users.get(socketid),' | ',nick);
-  //     nick = userName + ++suffixNum;
-  //   }
-  // });
+
     let suffixNum = -1;
     let exist = false;
-
+    let sockets = await io.of('/').in(newRoom).fetchSockets() as fetchSocket[];
+    
+    let nickArray = sockets.map((socket)=> socket.nickName );
+    // console.log(sockets);
     do {
       exist = false;
       nick = userName + (++suffixNum === 0 ? '' : suffixNum);
-      io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
-        // console.log(socket_users.get(socketid), ' | ', nick);
-        if(socket_users.get(socketid) === nick) exist = true;
-      });
+      if(nickArray.includes(nick)) exist = true;
     } while (exist);
+    
+    // do {
+    //   exist = false;
+    //   nick = userName + (++suffixNum === 0 ? '' : suffixNum);
+    //   io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
+    //     // console.log(socket_users.get(socketid), ' | ', nick);
+    //     if(socket_users.get(socketid) === nick) exist = true;
+    //   });
+    // } while (exist);
 
 
   return nick;
+}
+
+export function getNickFromNamespace(io:ServerIO, id:string, namespace:string){
+  // const socket = io.sockets.sockets;
+  // return socket.nickName;
+}
+export function getNickFromAll(io:ServerIO, id:string){
+  const socket = io.sockets.sockets.get(id) as SocketWithNick;
+  return socket.nickName;
 }

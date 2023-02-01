@@ -1,9 +1,9 @@
 import { NextApiRequest } from "next";
 import { NextApiResponseServerIO } from './types/chat';
-import { Server as ServerIO } from "socket.io";
+import { Server as ServerIO, Socket } from "socket.io";
 import { Server as NetServer } from "http";
 
-import { changeRoom, getIO, getRooms, registerUser } from "./ServerIO";
+import { changeRoom, getIO, getNickFromAll, getRooms, registerUser } from "./ServerIO";
 
 export const config = {
   api: {
@@ -11,8 +11,10 @@ export const config = {
   },
 };
 
+export interface SocketWithNick extends Socket{
+  nickName?: string,
+}
 
-let socket_users: Map<string, string>;
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
     if (res.socket.server.io) {
         res.end();
@@ -21,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
 
     console.log("New Socket.io server...✅");
-    socket_users = new Map();
+
 
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(httpServer, {
@@ -30,18 +32,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     res.socket.server.io = io;
     
-//TODO: 1. 닉네임 중복 시 suffix붙이기
-//      2. socket.id 바꾸기 테스트
 
-    io.on('connection', (socket) =>{
+    io.on('connection', (socket: SocketWithNick) =>{
         
         socket.on("chat", (message, nick, room) => {
 
-            io.to(room).emit("chat",socket_users.get(socket.id), message);
+            io.to(room).emit("chat",socket.nickName, message);
             // socket.emit("pchat","개인채팅");
         });
 
-        socket.on('join',(userName, currentRoom, newRoom)=>{
+        socket.on('join',async (userName, currentRoom, newRoom)=>{
           // socket_users.set(socket.id, nick);
 
           // io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
@@ -51,20 +51,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           //   }
           //   socket_users.set(socket.id, nick);
           // });
-          let nick = registerUser(io, socket_users, userName, newRoom);
-          socket_users.set(socket.id, nick);
+          let nick = await registerUser(io, userName, newRoom);
+          socket.nickName = nick;
+          // socket_users.set(socket.id, nick);
           changeRoom(socket, currentRoom, newRoom);
         });
 
         socket.on('create', (userName, roomName) => {
 
           if(!(io.of('/').adapter.rooms.get(roomName)?.size)){
-            socket_users.set(socket.id, userName);
+            socket.nickName = userName;
             changeRoom(socket, '', roomName);
           }else{ //비정상 접근
             console.log('비정상 접근');
           }
-
         });
 
         socket.on('rooms', ()=>{
@@ -81,17 +81,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     });
     
     io.of("/").adapter.on("join-room", (room, id) => {
-      console.log(`socket ${id} has joined room ${room}`);
-      
-      if(room !== id)
-        io.to(room).emit("chat",socket_users.get(id), '님이 입장하였습니다');
-
+      if(room !== id) io.to(room).emit("chat",getNickFromAll(io, id), '님이 입장하였습니다');
     });
 
     io.of("/").adapter.on("leave-room", (room, id) => {
-      console.log(`socket ${socket_users.get(id)} has leaved room ${room}`);
-      io.to(room).emit("chat",socket_users.get(id), '님이 퇴장하였습니다');
-      if(id !== room) socket_users.delete(id);
+      io.to(room).emit("chat",getNickFromAll(io, id), '님이 퇴장하였습니다');
 
     });
 
