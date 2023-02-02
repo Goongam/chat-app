@@ -1,5 +1,5 @@
 import { NextApiRequest } from "next";
-import { getRooms } from "./ServerIO";
+import { getRooms } from "./util";
 import { NextApiResponseServerIO } from "./types/chat";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO){

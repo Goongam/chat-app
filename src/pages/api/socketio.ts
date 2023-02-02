@@ -3,7 +3,7 @@ import { NextApiResponseServerIO } from './types/chat';
 import { Server as ServerIO, Socket } from "socket.io";
 import { Server as NetServer } from "http";
 
-import { changeRoom, getIO, getNickFromAll, getRooms, registerUser } from "./ServerIO";
+import { changeRoom, getIO, getNickFromAll, getRooms, registerUser } from "./util";
 
 export const config = {
   api: {
@@ -14,6 +14,14 @@ export const config = {
 export interface SocketWithNick extends Socket{
   nickName?: string,
 }
+export interface Rooms{
+  [key:number]: string,
+}
+
+let roomSequence = 1;
+let rooms:Rooms = {
+  
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
     if (res.socket.server.io) {
@@ -41,27 +49,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
             // socket.emit("pchat","개인채팅");
         });
 
-        socket.on('join',async (userName, currentRoom, newRoom)=>{
-          // socket_users.set(socket.id, nick);
+        socket.on('join',async (userName, currentRoom, roomid)=>{
 
-          // io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
-          //   let suffixNum = 2;
-          //   while(socket_users.get(socketid) === nick){
-          //     nick = userName + suffixNum++;
-          //   }
-          //   socket_users.set(socket.id, nick);
-          // });
-          let nick = await registerUser(io, userName, newRoom);
+
+          let nick = await registerUser(io, userName, roomid);
           socket.nickName = nick;
-          // socket_users.set(socket.id, nick);
-          changeRoom(socket, currentRoom, newRoom);
+
+          const roomName = rooms[roomid];
+
+          //TODO: DB사용하여 리팩토링(changeRoom함수안에서 emit하기)
+          socket.emit('roomChanged',roomName);
+          changeRoom(socket, currentRoom, roomid);
         });
 
         socket.on('create', (userName, roomName) => {
 
           if(!(io.of('/').adapter.rooms.get(roomName)?.size)){
+            const roomIndex = ++roomSequence;
+            rooms[roomIndex] = roomName;
+
             socket.nickName = userName;
-            changeRoom(socket, '', roomName);
+
+            socket.emit('roomIndex',roomIndex);
+
+            //TODO: DB사용하여 리팩토링(changeRoom함수안에서 emit하기)
+            socket.emit('roomChanged',roomName);
+
+            changeRoom(socket, '', `${roomIndex}`);
+
           }else{ //비정상 접근
             console.log('비정상 접근');
           }
@@ -69,7 +84,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
         socket.on('rooms', ()=>{
            socket.emit('rooms',getRooms(io));
-        })
+        });
+
+        // socket.on('roomIndex', ()=>{
+        //   socket.emit('roomIndex',roomSequence);
+        // });
     });
 
 // create-room (argument: room)

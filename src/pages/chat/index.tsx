@@ -12,35 +12,43 @@ interface Chat{
     message: string,
 }
 
-type Chats = Array<Chat>
-let userName: string|null;
+type Chats = Array<Chat>;
+// let ;
 export default function Room({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
     const [inputMsg, setInputMsg] = useState<string>('');
     const [chat, setChat] = useState<Chats>([]);
-    const [roomName, setRoomName] = useState<String>('');
+    const [roomName, setRoomName] = useState<string>('');
+    const [userName, setUserName] = useState<string | null>('');
+    const [roomIndex, setRoomIndex] = useState<string|string[]|undefined>('');
 
     const router = useRouter();
     let {room, create} = router.query;
     
+//TODO: 소켓 훅으로 만들기, 버튼, input 컴포넌트화 
     const joinRoom = useCallback(() =>{
-        userName = prompt('사용할 이름을 입력해 주세요');
-        if(!userName){
+        const inputName = prompt('사용할 이름을 입력해 주세요');
+        if(!inputName){
             router.push('/');
             return;
         }
-        socket.emit('join',userName,'',room);
+        setUserName(inputName);
+        socket.emit('join',inputName,'',room);
+
+        //roomindex
+        setRoomIndex(room);
     },[room, router]);
 
-    const createRoom = useCallback(
-        () =>{
-            userName = prompt('사용할 이름을 입력해 주세요');
-            if(!userName){
-                router.push('/');
-                return;
-            }
-            socket.emit('create',userName,room);
-        },[room, router]);
+    const createRoom = useCallback(() =>{
+        const inputName = prompt('사용할 이름을 입력해 주세요');
+        if(!inputName){
+            router.push('/');
+            return;
+        }
+        setUserName(inputName);
+        socket.emit('create',inputName,room);
+
+    },[room, router]);
 
     const socketInit = useCallback(async () =>{
         console.log('연결');
@@ -50,10 +58,8 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
             path: "/api/socketio",
         });
         socket.connect();
-        //방 생성 버튼
-         
-        //url접근
 
+        //url접근
         const {rooms} = await(await fetch('/api/rooms')).json();
 
         if(rooms.includes(room)){ //방 O
@@ -62,6 +68,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         }else{ //방X
             if(create === 'true'){
                 createRoom();
+                
             }else{
                 alert('존재하지 않는 채팅방 입니다.');
                 router.push('/');
@@ -74,24 +81,17 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
 
         })
         socket.on('roomChanged', (roomName) => {
-            console.log('receiveRoomName:',roomName)
             setRoomName(roomName);
         });
-
-        socket.on('pchat', (message) => {
-
+        socket.on('roomIndex',(roomIndex)=>{
+            console.log('roomIndex:',roomIndex)
+            setRoomIndex(roomIndex);
         });
 
         window.onpopstate = e => {
             socket.close();
         };
-    //   socket.on('rooms', (rooms)=>{
-    //     setRoomList(rooms);
-    //   });
-  
-    //   socket.on('roomChanged',(newRoom) => {
-    //     setRoom(newRoom);
-    //   });
+
     },[create, createRoom, joinRoom, room, router]); 
 
     useEffect(()=>{
@@ -103,7 +103,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
 
     const sendMsg = () =>{
         if(inputMsg){
-            socket.emit("chat", inputMsg, userName, room);
+            socket.emit("chat", inputMsg, userName, `${roomIndex}`);
             setInputMsg("");
         }     
       }
@@ -112,7 +112,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         router.push('/');
     }
     const invite = () =>{
-        const url = `${host}/invite/${room}`;
+        const url = `${host}/invite/${roomIndex}`;
         doCopy(url);
     }
     

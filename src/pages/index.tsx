@@ -47,11 +47,11 @@ export default function Home() {
     const roomName = prompt('방제목 입력');
     if(roomName === null) return;
 
-    const {rooms} = await(await fetch('/api/rooms')).json();
-    if(rooms.includes(roomName)){
-        alert('중복된 방제목');
-        return; 
-    }
+    // const {rooms} = await(await fetch('/api/rooms')).json();
+    // if(rooms.includes(roomName)){
+    //     alert('중복된 방제목');
+    //     return; 
+    // }
 
     router.push({
         pathname:'chat',
