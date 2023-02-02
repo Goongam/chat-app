@@ -1,7 +1,7 @@
 import { doCopy } from "@/util/doCopy";
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 
@@ -18,15 +18,31 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
 
     const [inputMsg, setInputMsg] = useState<string>('');
     const [chat, setChat] = useState<Chats>([]);
+    const [roomName, setRoomName] = useState<String>('');
 
     const router = useRouter();
-    const {room, create} = router.query;
+    let {room, create} = router.query;
     
-    useEffect(()=>{
-        if(room) socketInit();
-    },[room, create]);
+    const joinRoom = useCallback(() =>{
+        userName = prompt('사용할 이름을 입력해 주세요');
+        if(!userName){
+            router.push('/');
+            return;
+        }
+        socket.emit('join',userName,'',room);
+    },[room, router]);
 
-    const socketInit = async () =>{
+    const createRoom = useCallback(
+        () =>{
+            userName = prompt('사용할 이름을 입력해 주세요');
+            if(!userName){
+                router.push('/');
+                return;
+            }
+            socket.emit('create',userName,room);
+        },[room, router]);
+
+    const socketInit = useCallback(async () =>{
         console.log('연결');
 
         // await fetch("/api/socketio");
@@ -57,6 +73,10 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
             setChat((prev) => [...prev, {userName, message}]);
 
         })
+        socket.on('roomChanged', (roomName) => {
+            console.log('receiveRoomName:',roomName)
+            setRoomName(roomName);
+        });
 
         socket.on('pchat', (message) => {
 
@@ -72,25 +92,13 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
     //   socket.on('roomChanged',(newRoom) => {
     //     setRoom(newRoom);
     //   });
-    }
+    },[create, createRoom, joinRoom, room, router]); 
 
-    const joinRoom = () =>{
-        userName = prompt('사용할 이름을 입력해 주세요');
-        if(!userName){
-            router.push('/');
-            return;
-        }
-        socket.emit('join',userName,'',room);
-    }
+    useEffect(()=>{
+        if(room) socketInit();
+    },[room, create, socketInit]);
 
-    const createRoom = () =>{
-        userName = prompt('사용할 이름을 입력해 주세요');
-        if(!userName){
-            router.push('/');
-            return;
-        }
-        socket.emit('create',userName,room);
-    }
+
 
 
     const sendMsg = () =>{
@@ -112,7 +120,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
 
     return (
     <>
-        <h4>방:{room}</h4>
+        <h4>방:{roomName}</h4>
         <input 
             type={"Text"}
             onChange={(e)=>{setInputMsg(e.target.value)}}
