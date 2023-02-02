@@ -33,9 +33,10 @@ export function getRooms(io: ServerIO){
 }
 
 export function changeRoom(socket: Socket, currentRoom:string, newRoom:string)  {
+  
     socket.leave(currentRoom);
     socket.join(newRoom);
-    socket.emit('roomChanged',newRoom);
+    // socket.emit('roomChanged',newRoom);
 }
 
 export async function registerUser(io: ServerIO, userName:string, newRoom:string){
