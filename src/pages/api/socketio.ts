@@ -104,6 +104,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     });
 
     io.of("/").adapter.on("leave-room", (room, id) => {
+      console.log(id+' - leaved');
+      console.log(io.of('/').adapter.rooms);
       io.to(room).emit("chat",getNickFromAll(io, id), '님이 퇴장하였습니다');
 
     });

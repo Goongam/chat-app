@@ -1,3 +1,4 @@
+import { useSocket } from "@/hooks/useSocket";
 import { doCopy } from "@/util/doCopy";
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
@@ -25,49 +26,40 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
     const router = useRouter();
     let {room, create} = router.query;
     
-//TODO: 소켓 훅으로 만들기, 버튼, input 컴포넌트화 
-    const joinRoom = useCallback(() =>{
+    const {socket, disconnect} = useSocket();
+
+//TODO: 버튼, input 컴포넌트화 
+    const joinRoom = useCallback((type: 'join'|'create') =>{
         const inputName = prompt('사용할 이름을 입력해 주세요');
         if(!inputName){
+            disconnect();
             router.push('/');
             return;
         }
         setUserName(inputName);
-        socket.emit('join',inputName,'',room);
 
-        //roomindex
-        setRoomIndex(room);
-    },[room, router]);
-
-    const createRoom = useCallback(() =>{
-        const inputName = prompt('사용할 이름을 입력해 주세요');
-        if(!inputName){
-            router.push('/');
-            return;
+        if(type === 'join'){
+            socket.emit('join',inputName,'',room);
+            setRoomIndex(room);
+        }else{
+            socket.emit('create',inputName,room);
         }
-        setUserName(inputName);
-        socket.emit('create',inputName,room);
 
-    },[room, router]);
+    },[room, router, socket, disconnect]);
+
 
     const socketInit = useCallback(async () =>{
         console.log('연결');
-
-        // await fetch("/api/socketio");
-        socket = io({
-            path: "/api/socketio",
-        });
-        socket.connect();
 
         //url접근
         const {rooms} = await(await fetch('/api/rooms')).json();
 
         if(rooms.includes(room)){ //방 O
-            joinRoom();
+            joinRoom('join');
 
         }else{ //방X
             if(create === 'true'){
-                createRoom();
+                joinRoom('create');
                 
             }else{
                 alert('존재하지 않는 채팅방 입니다.');
@@ -89,15 +81,14 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         });
 
         window.onpopstate = e => {
-            socket.close();
+            disconnect();
         };
 
-    },[create, createRoom, joinRoom, room, router]); 
+    },[create, joinRoom, room, router, socket, disconnect]); 
 
     useEffect(()=>{
         if(room) socketInit();
     },[room, create, socketInit]);
-
 
 
 
@@ -108,7 +99,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         }     
       }
     const exitRoom = ()=>{
-        socket.close();
+        disconnect();
         router.push('/');
     }
     const invite = () =>{
@@ -134,6 +125,8 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
             <div key={index}>{chat.userName}: {chat.message}</div>
         ))}
         </div>
+
+        <button onClick={()=>{fetch('/api/test')}}>test</button>
     </>
     );
 }
