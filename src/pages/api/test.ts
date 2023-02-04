@@ -4,11 +4,8 @@ import { NextApiResponseServerIO } from "./types/chat";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO){
 
-    const rooms = getRooms(res.socket.server.io);
-
+    const rooms = res.socket.server.io.of('/').adapter.rooms;
     console.log('rooms:',rooms);
-    res.status(201).json({
-        rooms: rooms,
-    });
-  
+    
+    res.send(rooms);
 };
