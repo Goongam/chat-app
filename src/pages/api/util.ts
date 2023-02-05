@@ -4,6 +4,7 @@ import { RemoteSocket, Server as ServerIO, Socket } from "socket.io";
 import { Server as NetServer, Server } from "http";
 import { DefaultEventsMap, EventsMap } from "socket.io/dist/typed-events";
 import { SocketWithNick } from "./socketio";
+import { getRoomName } from "@/lib/dbUtil";
 
 
 interface fetchSocket extends RemoteSocket<EventsMap, any>{
@@ -32,10 +33,14 @@ export function getRooms(io: ServerIO){
     return publicRooms;
 }
 
-export function changeRoom(socket: Socket, currentRoom:string, newRoom:string)  {
+export async function changeRoom(socket: Socket, currentRoom:string, newRoom:string)  {
   
     socket.leave(currentRoom);
     socket.join(newRoom);
+
+    const roomName = await getRoomName(newRoom);
+    socket.emit('roomChanged',roomName);
+
     // socket.emit('roomChanged',newRoom);
 }
 

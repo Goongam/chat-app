@@ -4,6 +4,7 @@ import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsT
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { Room } from "..";
 
 
 let socket: Socket;
@@ -15,7 +16,7 @@ interface Chat{
 
 type Chats = Array<Chat>;
 // let ;
-export default function Room({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
+export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
     const [inputMsg, setInputMsg] = useState<string>('');
     const [chat, setChat] = useState<Chats>([]);
@@ -54,7 +55,7 @@ export default function Room({host}: InferGetServerSidePropsType<typeof getServe
         //url접근
         const {rooms} = await(await fetch('/api/rooms')).json();
 
-        if(rooms.includes(room)){ //방 O
+        if(rooms.map((room:Room)=>room.id).includes(room)){ //방 O
             joinRoom('join');
 
         }else{ //방X

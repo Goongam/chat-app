@@ -23,10 +23,14 @@ const RoomList = styled.div`
   border: 2px solid ${props => props.color};
 `;
 
+export interface Room{
+  id: string,
+  roomName: string,
+}
 
 export default function Home() {
 
-  const [roomList, setRoomList] = useState<string[]>();
+  const [roomList, setRoomList] = useState<Room[]>();
   
   const router = useRouter();
 
@@ -78,13 +82,13 @@ export default function Home() {
                     href={{
                       pathname:'chat',
                       query: {
-                          room: r,
+                          room: r.id,
                           // createRoom: true,
                       },
                     }}
                     as={'/'}
                     >
-                      {r}
+                      {r.roomName}
                     </Link>
                     </RoomList>
                   );

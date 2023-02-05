@@ -5,6 +5,11 @@ import { Server as NetServer } from "http";
 
 import { changeRoom, getIO, getNickFromAll, getRooms, registerUser } from "./util";
 
+// import { connectDB } from "./mongodb/mongo";
+// import { Msg } from "./mongodb/message";
+import clientPromise from "@/lib/mongodb";
+import { createRoomDB, dbInit, getRoomName, insertMsgDB } from "@/lib/dbUtil";
+
 export const config = {
   api: {
     bodyParser: false,
@@ -18,17 +23,14 @@ export interface Rooms{
   [key:number]: string,
 }
 
-let roomSequence = 1;
-let rooms:Rooms = {
-  
-};
-
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
     if (res.socket.server.io) {
         res.end();
         return;
     }
 
+    // connectDB();
+    dbInit();
 
     console.log("New Socket.io server...✅");
 
@@ -43,7 +45,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     io.on('connection', (socket: SocketWithNick) =>{
         
-        socket.on("chat", (message, nick, room) => {
+        socket.on("chat", async (message, nick, room) => {
+
+            insertMsgDB(socket.nickName, room, message);
 
             io.to(room).emit("chat",socket.nickName, message);
             // socket.emit("pchat","개인채팅");
@@ -51,30 +55,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
         socket.on('join',async (userName, currentRoom, roomid)=>{
 
-
           let nick = await registerUser(io, userName, roomid);
           socket.nickName = nick;
-
-          const roomName = rooms[roomid];
-
-          //TODO: DB사용하여 리팩토링(changeRoom함수안에서 emit하기)
-          socket.emit('roomChanged',roomName);
+          
           changeRoom(socket, currentRoom, roomid);
         });
 
-        socket.on('create', (userName, roomName) => {
+        socket.on('create', async (userName, roomName) => {
 
           if(!(io.of('/').adapter.rooms.get(roomName)?.size)){
-            const roomIndex = ++roomSequence;
-            rooms[roomIndex] = roomName;
 
             socket.nickName = userName;
 
+            const roomIndex = await createRoomDB(roomName);
+
             socket.emit('roomIndex',roomIndex);
-
-            //TODO: DB사용하여 리팩토링(changeRoom함수안에서 emit하기)
-            socket.emit('roomChanged',roomName);
-
             changeRoom(socket, '', `${roomIndex}`);
 
           }else{ //비정상 접근
