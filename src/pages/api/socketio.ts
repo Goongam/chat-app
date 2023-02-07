@@ -3,12 +3,10 @@ import { NextApiResponseServerIO } from './types/chat';
 import { Server as ServerIO, Socket } from "socket.io";
 import { Server as NetServer } from "http";
 
-import { changeRoom, getIO, getNickFromAll, getRooms, registerUser } from "./util";
+import { changeRoom, getNickFromAll, getRooms, getUsersInRoom, registerUser } from "./util";
 
-// import { connectDB } from "./mongodb/mongo";
-// import { Msg } from "./mongodb/message";
-import clientPromise from "@/lib/mongodb";
-import { createRoomDB, dbInit, getRoomName, insertMsgDB } from "@/lib/dbUtil";
+
+import { createRoomDB, dbInit, insertMsgDB } from "@/lib/dbUtil";
 
 export const config = {
   api: {
@@ -81,9 +79,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
            socket.emit('rooms',getRooms(io));
         });
 
-        // socket.on('roomIndex', ()=>{
-        //   socket.emit('roomIndex',roomSequence);
-        // });
     });
 
 // create-room (argument: room)
@@ -94,15 +89,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       console.log(`room ${room} was created`);
     });
     
-    io.of("/").adapter.on("join-room", (room, id) => {
+    io.of("/").adapter.on("join-room", async (room, id) => {
       if(room !== id) io.to(room).emit("chat",getNickFromAll(io, id), '님이 입장하였습니다');
+      
+      io.to(room).emit("members",await getUsersInRoom(io, room));
+
     });
 
-    io.of("/").adapter.on("leave-room", (room, id) => {
-      console.log(id+' - leaved');
-      console.log(io.of('/').adapter.rooms);
-      io.to(room).emit("chat",getNickFromAll(io, id), '님이 퇴장하였습니다');
+    io.of("/").adapter.on("leave-room", async (room, id) => {
 
+      io.to(room).emit("chat",getNickFromAll(io, id), '님이 퇴장하였습니다');
+      io.to(room).emit("members",await getUsersInRoom(io, room));
     });
 
     res.end();

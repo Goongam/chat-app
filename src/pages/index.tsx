@@ -26,6 +26,7 @@ const RoomList = styled.div`
 export interface Room{
   id: string,
   roomName: string,
+  members: number,
 }
 
 export default function Home() {
@@ -41,7 +42,7 @@ export default function Home() {
     })();
   },[])
 
-  const roomlist = async()=>{
+  const setRoomlist = async()=>{
     // socket.emit('rooms');
     const {rooms} = await(await fetch('/api/rooms')).json();
     setRoomList(rooms);
@@ -71,10 +72,10 @@ export default function Home() {
   return (
     <>
       <StyleButton onClick={createRoom} color='mediumseagreen'>방만들기</StyleButton>
-      <StyleButton onClick={roomlist} color='mediumseagreen'>방목록</StyleButton>
+      <StyleButton onClick={setRoomlist} color='mediumseagreen'>방목록</StyleButton>
       <RoomListWrap>
       {
-              roomList?.map((r, index) => {
+              roomList?.map((room, index) => {
 
                   return(
                     <RoomList key={index} color='mediumseagreen'>
@@ -82,13 +83,13 @@ export default function Home() {
                     href={{
                       pathname:'chat',
                       query: {
-                          room: r.id,
+                          room: room.id,
                           // createRoom: true,
                       },
                     }}
                     as={'/'}
                     >
-                      {r.roomName}
+                      {room.roomName} / {room.members}
                     </Link>
                     </RoomList>
                   );

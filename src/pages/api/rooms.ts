@@ -6,14 +6,17 @@ import { getRoom, getRoomName } from "@/lib/dbUtil";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO){
+    const io = res.socket.server.io;
 
-    const rooms = getRooms(res.socket.server.io);
-    // const roomList = await Promise.all(rooms.map(room=>getRoomName(room)));
+    const rooms = getRooms(io);
+
     const roomsWithName = await Promise.all(rooms.map(room=>getRoom(room)));
     const roomList = roomsWithName.map((room)=>{
+        let roomid = room?._id.toHexString() as string;
         return {
-            id: room?._id.toHexString(),
+            id: roomid,
             roomName: room?.roomName,
+            members: io.of('/').adapter.rooms.get(roomid)?.size
         }
     });
     console.log('rooms:',roomList);

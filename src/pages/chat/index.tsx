@@ -23,6 +23,7 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
     const [roomName, setRoomName] = useState<string>('');
     const [userName, setUserName] = useState<string | null>('');
     const [roomIndex, setRoomIndex] = useState<string|string[]|undefined>('');
+    const [members, setMembers] = useState([]);
 
     const router = useRouter();
     let {room, create} = router.query;
@@ -77,8 +78,10 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             setRoomName(roomName);
         });
         socket.on('roomIndex',(roomIndex)=>{
-            console.log('roomIndex:',roomIndex)
             setRoomIndex(roomIndex);
+        });
+        socket.on('members',(members)=>{
+            setMembers(members);
         });
 
         window.onpopstate = e => {
@@ -121,6 +124,11 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
         <button onClick={sendMsg}>전송</button>
         <button onClick={exitRoom}>퇴장</button>
         <button onClick={invite}>초대url복사</button>
+        <div>
+            {
+                members.map((member)=>(<div key={member}>{member}</div>))
+            }
+        </div>
         <div>
         {chat.map((chat, index) => (
             <div key={index}>{chat.userName}: {chat.message}</div>

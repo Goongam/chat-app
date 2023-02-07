@@ -29,7 +29,7 @@ export function getRooms(io: ServerIO){
      if(sids.get(key) === undefined)
        publicRooms.push(key);
     });
-
+    
     return publicRooms;
 }
 
@@ -52,23 +52,13 @@ export async function registerUser(io: ServerIO, userName:string, newRoom:string
     let sockets = await io.of('/').in(newRoom).fetchSockets() as fetchSocket[];
     
     let nickArray = sockets.map((socket)=> socket.nickName );
-    // console.log(sockets);
+
     do {
       exist = false;
       nick = userName + (++suffixNum === 0 ? '' : suffixNum);
       if(nickArray.includes(nick)) exist = true;
     } while (exist);
-    
-    // do {
-    //   exist = false;
-    //   nick = userName + (++suffixNum === 0 ? '' : suffixNum);
-    //   io.of('/').adapter.rooms.get(newRoom)?.forEach(socketid => {
-    //     // console.log(socket_users.get(socketid), ' | ', nick);
-    //     if(socket_users.get(socketid) === nick) exist = true;
-    //   });
-    // } while (exist);
-
-
+  
   return nick;
 }
 
@@ -79,4 +69,10 @@ export function getNickFromNamespace(io:ServerIO, id:string, namespace:string){
 export function getNickFromAll(io:ServerIO, id:string){
   const socket = io.sockets.sockets.get(id) as SocketWithNick;
   return socket.nickName;
+}
+
+export async function getUsersInRoom(io:ServerIO, room: string){
+  let sockets = await io.of('/').in(room).fetchSockets() as fetchSocket[];
+  let users = sockets.map((socket) => socket.nickName);
+  return users;
 }
