@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     io.on('connection', (socket: SocketWithNick) =>{
         
-        socket.on("chat", async (message, nick, room) => {
+        socket.on("chat", async (message, room) => {
 
             insertMsgDB(socket.nickName, room, message);
 

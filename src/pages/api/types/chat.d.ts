@@ -9,3 +9,18 @@ export type NextApiResponseServerIO = NextApiResponse & {
     };
   };
 };
+
+export type Host = string|undefined;
+export type RoomIndex = string|string[]|undefined;
+export interface InviteType{
+  host: Host,
+  roomIndex: RoomIndex,
+}
+
+
+export interface Chat{
+  userName: string,
+  message: string,
+}
+
+export type Chats = Array<Chat>;

@@ -1,36 +1,27 @@
+import Chatting from "@/components/Chatting";
+import ExitRoomBtn from "@/components/ExitRoomBtn";
+import InviteBtn from "@/components/InviteBtn";
+import RoomMembers from "@/components/RoomMembers";
+import { SubmitBtn } from "@/components/SubmitBtn";
 import { useSocket } from "@/hooks/useSocket";
-import { doCopy } from "@/util/doCopy";
+
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Room } from "..";
 
-
-let socket: Socket;
-
-interface Chat{
-    userName: string,
-    message: string,
-}
-
-type Chats = Array<Chat>;
 // let ;
 export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
-    const [inputMsg, setInputMsg] = useState<string>('');
-    const [chat, setChat] = useState<Chats>([]);
     const [roomName, setRoomName] = useState<string>('');
-    const [userName, setUserName] = useState<string | null>('');
     const [roomIndex, setRoomIndex] = useState<string|string[]|undefined>('');
-    const [members, setMembers] = useState([]);
 
     const router = useRouter();
-    let {room, create} = router.query;
-    
     const {socket, disconnect} = useSocket();
 
-//TODO: 버튼, input 컴포넌트화 
+    let {room, create} = router.query;
+    
     const joinRoom = useCallback((type: 'join'|'create') =>{
         const inputName = prompt('사용할 이름을 입력해 주세요');
         if(!inputName){
@@ -38,7 +29,6 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             router.push('/');
             return;
         }
-        setUserName(inputName);
 
         if(type === 'join'){
             socket.emit('join',inputName,'',room);
@@ -70,18 +60,11 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             }
         }
     
-        socket.on('chat', (userName, message) => {
-            setChat((prev) => [...prev, {userName, message}]);
-
-        })
         socket.on('roomChanged', (roomName) => {
             setRoomName(roomName);
         });
         socket.on('roomIndex',(roomIndex)=>{
             setRoomIndex(roomIndex);
-        });
-        socket.on('members',(members)=>{
-            setMembers(members);
         });
 
         window.onpopstate = e => {
@@ -93,49 +76,17 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
     useEffect(()=>{
         if(room) socketInit();
     },[room, create, socketInit]);
-
-
-
-    const sendMsg = () =>{
-        if(inputMsg){
-            socket.emit("chat", inputMsg, userName, `${roomIndex}`);
-            setInputMsg("");
-        }     
-      }
-    const exitRoom = ()=>{
-        disconnect();
-        router.push('/');
-    }
-    const invite = () =>{
-        const url = `${host}/invite/${roomIndex}`;
-        doCopy(url);
-    }
     
     if(!room) return <>찾을 수 없는 채팅 방</>;
 
     return (
     <>
         <h4>방:{roomName}</h4>
-        <input 
-            type={"Text"}
-            onChange={(e)=>{setInputMsg(e.target.value)}}
-            value={inputMsg}
-        />
-        <button onClick={sendMsg}>전송</button>
-        <button onClick={exitRoom}>퇴장</button>
-        <button onClick={invite}>초대url복사</button>
-        <div>
-            {
-                members.map((member)=>(<div key={member}>{member}</div>))
-            }
-        </div>
-        <div>
-        {chat.map((chat, index) => (
-            <div key={index}>{chat.userName}: {chat.message}</div>
-        ))}
-        </div>
-
-        <button onClick={()=>{fetch('/api/test')}}>test</button>
+        <SubmitBtn roomIndex={roomIndex} />
+        <ExitRoomBtn />
+        <InviteBtn host={host} roomIndex={roomIndex} />       
+        <RoomMembers />
+        <Chatting />
     </>
     );
 }
