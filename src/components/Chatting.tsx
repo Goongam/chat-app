@@ -1,8 +1,14 @@
 import { useSocket } from "@/hooks/useSocket";
-import { Chats } from "@/pages/api/types/chat";
+import { Chats, UserName } from "@/pages/api/types/chat";
 import {useEffect, useState} from 'react';
+import styled from "styled-components";
+import Chat from "./Chat";
 
-export default function Chatting(){
+const ChatContent = styled.div`
+    margin: 10px;
+`;
+
+export default function Chatting({userName}: UserName){
     const [chat, setChat] = useState<Chats>([]);
     const {socket} = useSocket();
 
@@ -15,10 +21,13 @@ export default function Chatting(){
 
 
     return(
-        <div>
+        //TODO: 입장, 퇴장 메시지 따로 표시
+        //TODO: member drawer 구현
+        //input css
+        <ChatContent>
             {chat.map((chat, index) => (
-                <div key={index}>{chat.userName}: {chat.message}</div>
+                <Chat key={index} name={chat.userName} message={chat.message} isMine={userName === chat.userName}></Chat>
             ))}
-        </div>
+        </ChatContent>
     );
 }

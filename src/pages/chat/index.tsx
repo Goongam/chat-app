@@ -8,20 +8,21 @@ import { useSocket } from "@/hooks/useSocket";
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
 import { Room } from "..";
 
-// let ;
 export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
+    
+
     const [roomName, setRoomName] = useState<string>('');
+    const [userName, setUserName] = useState<string | null>('');
     const [roomIndex, setRoomIndex] = useState<string|string[]|undefined>('');
 
     const router = useRouter();
-    const {socket, disconnect} = useSocket();
-
     let {room, create} = router.query;
     
+    const {socket, disconnect} = useSocket();
+
     const joinRoom = useCallback((type: 'join'|'create') =>{
         const inputName = prompt('사용할 이름을 입력해 주세요');
         if(!inputName){
@@ -29,6 +30,7 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             router.push('/');
             return;
         }
+        setUserName(inputName);
 
         if(type === 'join'){
             socket.emit('join',inputName,'',room);
@@ -86,7 +88,7 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
         <ExitRoomBtn />
         <InviteBtn host={host} roomIndex={roomIndex} />       
         <RoomMembers />
-        <Chatting />
+        <Chatting userName={userName}/>
     </>
     );
 }

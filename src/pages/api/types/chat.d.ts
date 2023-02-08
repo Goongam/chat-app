@@ -24,3 +24,13 @@ export interface Chat{
 }
 
 export type Chats = Array<Chat>;
+
+export interface UserName{
+  userName:string|null,
+}
+
+export interface Chatting{
+  name:string,
+  message: string,
+  isMine:boolean,
+}
