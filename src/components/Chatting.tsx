@@ -5,7 +5,23 @@ import styled from "styled-components";
 import Chat from "./Chat";
 
 const ChatContent = styled.div`
-    margin: 10px;
+    margin: 0 10px 10px 10px;
+`;
+
+const ScrollDiv = styled.div`
+    overflow-y: scroll;
+
+    height: 528px;
+    display:flex;
+    flex-direction: column-reverse;
+    /* overflow-y:auto; */
+    -ms-overflow-style: none;
+    ::-webkit-scrollbar{
+        display: none;
+    }
+    
+/* height:535px; */
+/* [출처] [html/css] css만으로 스크롤바 하단고정하는방법/스크롤하단고정/채팅스크롤구현/챗봇구현/HTML채팅스크롤/scroll 아래|작성자 진짱 */
 `;
 
 export default function Chatting({userName}: UserName){
@@ -14,20 +30,29 @@ export default function Chatting({userName}: UserName){
 
     useEffect(()=>{
         socket.on('chat', (userName, message) => {
-            setChat((prev) => [...prev, {userName, message}]);
-
-        })
+            setChat((prev) => [...prev, {userName, message, type:'chat'}]);
+        });
+        socket.on('notice', (message)=>{
+            setChat((prev) => [...prev, {message, type:'notice'}]);
+        });
     },[socket]);
 
 
     return(
-        //TODO: 입장, 퇴장 메시지 따로 표시
         //TODO: member drawer 구현
-        //input css
-        <ChatContent>
+        <ScrollDiv>
+            <ChatContent>
             {chat.map((chat, index) => (
-                <Chat key={index} name={chat.userName} message={chat.message} isMine={userName === chat.userName}></Chat>
+                <Chat 
+                    key={index} 
+                    userName={chat.userName} 
+                    message={chat.message} 
+                    isMine={userName === chat.userName} 
+                    type={chat.type} 
+                />
             ))}
         </ChatContent>
+        </ScrollDiv>
+        
     );
 }

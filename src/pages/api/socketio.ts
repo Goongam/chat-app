@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     });
     
     io.of("/").adapter.on("join-room", async (room, id) => {
-      if(room !== id) io.to(room).emit("chat",getNickFromAll(io, id), '님이 입장하였습니다');
+      if(room !== id) io.to(room).emit("notice",`${getNickFromAll(io, id)}님이 입장하였습니다`);
       
       io.to(room).emit("members",await getUsersInRoom(io, room));
 
@@ -98,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     io.of("/").adapter.on("leave-room", async (room, id) => {
 
-      io.to(room).emit("chat",getNickFromAll(io, id), '님이 퇴장하였습니다');
+      io.to(room).emit("notice",`${getNickFromAll(io, id)}님이 퇴장하였습니다`);
       io.to(room).emit("members",await getUsersInRoom(io, room));
     });
 

@@ -84,11 +84,11 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
     return (
     <>
         <h4>방:{roomName}</h4>
-        <SubmitBtn roomIndex={roomIndex} />
         <ExitRoomBtn />
         <InviteBtn host={host} roomIndex={roomIndex} />       
         <RoomMembers />
         <Chatting userName={userName}/>
+        <SubmitBtn roomIndex={roomIndex} />
     </>
     );
 }

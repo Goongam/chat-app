@@ -1,17 +1,12 @@
-import { Chatting } from "@/pages/api/types/chat";
+import { Chat } from "@/pages/api/types/chat";
 import styled from "styled-components";
 import css from "styled-jsx/css";
 
-const Line = styled.div<{ mine: boolean }>`
-    display: flex;
-    justify-content: ${ (props)=> props.mine ? `end` : `start` };
-`;
-
-
 const Name = styled.div`
-    display: flex;
+    /* display: flex; */
 `
 const Message = styled.div`
+    /* display: flex; */
     width: fit-content;
     max-width: 300px;
     white-space: normal;
@@ -22,15 +17,39 @@ const Message = styled.div`
     padding: 5px;
 `
 
+const Content = styled.div`
+    display: flex;
+    flex-direction: column;
+`
 
-export default function Chat({name, message, isMine}:Chatting){
+const Line = styled.div<{ mine: boolean|undefined }>`
+    display: flex;
+    justify-content: ${ (props)=> props.mine ? `end` : `start` };
+
+    ${Content}{
+        align-items: ${ (props)=> props.mine ? `flex-end` : `flex-start` };
+    }
+`;
+
+
+
+
+
+export default function Chatting({userName, message, isMine, type}:Chat){
     
+    if(type === 'notice'){
+        return(
+            <div style={{display:'block'}}>
+                {message}
+            </div>
+        );
+    }
     return (
         <Line mine={isMine}>
-            <div>
-                <Name>{name}</Name>
+            <Content>
+                <Name>{userName}</Name>
                 <Message>{message}</Message>
-            </div>
+            </Content>
         </Line>
     );
 }

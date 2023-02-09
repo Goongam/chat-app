@@ -19,8 +19,10 @@ export interface InviteType{
 
 
 export interface Chat{
-  userName: string,
+  userName?: string,
   message: string,
+  type: 'chat'|'notice',
+  isMine?:boolean
 }
 
 export type Chats = Array<Chat>;
@@ -29,8 +31,8 @@ export interface UserName{
   userName:string|null,
 }
 
-export interface Chatting{
-  name:string,
-  message: string,
-  isMine:boolean,
-}
+// export interface Chatting{
+//   name?:string,
+//   message: string,
+//   isMine:boolean,
+// }

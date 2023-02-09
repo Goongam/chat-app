@@ -8,8 +8,8 @@ const Containter = styled.div`
     text-align: center;
     border: 2px solid green;
     width: 500px;
-    height: 700px;
-    border-radius: 2%;
+    height: fit-content;
+    border-radius: 1rem;
 `;
 
 export default function Layout({children}: LayoutProps){
