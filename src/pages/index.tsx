@@ -69,10 +69,18 @@ export default function Home() {
 
   }
 
+  const joinRandomChat = ()=>{
+    router.push({
+      pathname:'chat/random',
+     },
+     `/`);
+  }
+
   return (
     <>
       <StyleButton onClick={createRoom} color='mediumseagreen'>방만들기</StyleButton>
       <StyleButton onClick={setRoomlist} color='mediumseagreen'>방목록</StyleButton>
+      <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>
       <RoomListWrap>
       {
               roomList?.map((room, index) => {

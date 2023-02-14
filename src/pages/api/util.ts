@@ -33,7 +33,7 @@ export function getRooms(io: ServerIO){
     return publicRooms;
 }
 
-export async function changeRoom(socket: Socket, currentRoom:string, newRoom:string)  {
+export async function changeRoom(socket: Socket|RemoteSocket<DefaultEventsMap,any>, currentRoom:string, newRoom:string)  {
   
     socket.leave(currentRoom);
     socket.join(newRoom);
@@ -75,4 +75,14 @@ export async function getUsersInRoom(io:ServerIO, room: string){
   let sockets = await io.of('/').in(room).fetchSockets() as fetchSocket[];
   let users = sockets.map((socket) => socket.nickName);
   return users;
+}
+
+export function getNoMatchingSocket(io:ServerIO){
+  const rooms = io.of('/random').adapter.rooms;
+  let NoMatchSockets:string[] = [];
+  rooms.forEach((joinedSocket, roomName)=>{
+    if(!roomName.startsWith('match')) NoMatchSockets.push(roomName);
+  })
+
+  return NoMatchSockets;
 }

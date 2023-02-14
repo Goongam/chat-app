@@ -3,10 +3,12 @@ import { NextApiResponseServerIO } from './types/chat';
 import { Server as ServerIO, Socket } from "socket.io";
 import { Server as NetServer } from "http";
 
-import { changeRoom, getNickFromAll, getRooms, getUsersInRoom, registerUser } from "./util";
+import { changeRoom, getNickFromAll, getNoMatchingSocket, getRooms, getUsersInRoom, registerUser } from "./util";
 
 
 import { createRoomDB, dbInit, insertMsgDB } from "@/lib/dbUtil";
+
+import { namespaces } from "@/constants";
 
 export const config = {
   api: {
@@ -42,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     
 
     io.on('connection', (socket: SocketWithNick) =>{
-        
+
         socket.on("chat", async (message, room) => {
 
             insertMsgDB(socket.nickName, room, message);
@@ -81,6 +83,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     });
 
+
+  //랜덤채팅
+    io.of('/random').on('connection', async (socket: SocketWithNick)=>{
+      // const noMathchSockets = io.of('/random').adapter.rooms;
+
+      console.log(io.of('/random').adapter.rooms);
+      
+      
+      if(getNoMatchingSocket(io).length >= 2){
+        let sockets = await io.of('/random').fetchSockets();
+        const socket1 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[0]);
+        const socket2 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[1]);
+
+        if(socket1 && socket2) {//매칭성공
+          const roomIndex = await createRoomDB('random-chat');
+          const matchRoomIndex = 'match'+roomIndex;
+
+          socket1.leave(socket1?.id);
+          socket2.leave(socket2?.id);
+          socket1.join(matchRoomIndex);
+          socket2.join(matchRoomIndex);
+          
+          io.of(namespaces.random).to(matchRoomIndex).emit('roomIndex',matchRoomIndex);
+          io.of(namespaces.random).to(matchRoomIndex).emit('notice-random', 'join');
+          
+        }
+          
+      }
+
+      socket.on("chat", async (message, room) => {
+        if(!room) return;
+        
+        insertMsgDB(socket.handshake.address, room, message);
+
+        io.of('/random').to(room).emit("chat",socket.id, message);
+        // socket.emit("pchat","개인채팅");
+      });
+      socket.emit('userName',socket.id);
+
+    });
+
 // create-room (argument: room)
 // delete-room (argument: room)
 // join-room (argument: room, id)
@@ -101,6 +144,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       io.to(room).emit("notice",`${getNickFromAll(io, id)}님이 퇴장하였습니다`);
       io.to(room).emit("members",await getUsersInRoom(io, room));
     });
+
+    io.of(namespaces.random).adapter.on('leave-room',async (room, id) => {
+      io.of(namespaces.random).to(room).emit('notice-random', 'leave');
+    })
+
+    // io.of(namespaces.random).adapter.on('join-room',async (room, id) => {
+    //   io.of(namespaces.random).emit('notice-random', 'join', id);
+    // })
 
     res.end();
 };

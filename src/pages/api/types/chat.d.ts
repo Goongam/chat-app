@@ -29,6 +29,7 @@ export type Chats = Array<Chat>;
 
 export interface UserName{
   userName:string|null,
+  chatInit?:Chat[],
 }
 
 // export interface Chatting{

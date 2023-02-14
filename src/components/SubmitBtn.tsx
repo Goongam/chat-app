@@ -32,6 +32,7 @@ export function SubmitBtn({roomIndex}: RoomIndexObj){
     const {socket} = useSocket();
 
     const sendMsg = () =>{
+        
         if(inputMsg){
             socket.emit("chat", inputMsg, `${roomIndex}`);
             setInputMsg("");
