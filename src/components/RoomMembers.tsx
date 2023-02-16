@@ -1,14 +1,19 @@
 import { useSocket } from '@/hooks/useSocket';
 import {useState, useEffect} from 'react';
 import styled from 'styled-components';
+import {memberListHeight} from '@/constants';
 
 const Members = styled.div<{isOpen:boolean}>`
-    height: ${props => props.isOpen ? '100px' : '30px'};
-    border: 1px solid black;
+    height: ${props => props.isOpen ? '100px' : `${memberListHeight}px`};
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
     transition-duration: 0.1s;
     transition-property: height;
     /* overflow-y: scroll; */
     display: flex;
+    width:calc(100%);
+    background-color:white;
+    position:absolute;
 `;
 
 const MemberList = styled.div`

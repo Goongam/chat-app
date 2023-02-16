@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
 import io from "socket.io-client";
 import styled from "styled-components";
+import {BiRefresh} from 'react-icons/bi';
 
 const StyleButton = styled.button`
   font-size: 1em;
@@ -13,14 +14,43 @@ const StyleButton = styled.button`
   color: ${props => props.color};
   border: 2px solid ${props => props.color};
 `;
-const RoomListWrap = styled.div`
+const ReFreshDiv = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
 `;
+const RoomInfo = styled.div`
+  display: inline-block;
+`
 const RoomList = styled.div`
-  width: 75%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-  border: 2px solid ${props => props.color};
+`;
+const Room = styled.div`
+  width: 75%;
+  border-bottom: 1px solid rgb(175, 171, 171);
+  padding: 5px 0 5px 0;
+
+  display: flex;
+  justify-content: space-between;
+  &:first-child{
+    border-top: 1px solid rgb(175, 171, 171);
+  }
+  &:last-child{
+    border-bottom: none;
+  }
+`;
+
+export const RoomName = styled.div`
+  /* margin-left: 5px; */
+  width: fit-content;
+  max-width: 300px;
+  white-space: normal;
+  word-break: break-all;
+  text-align: left;
+`;
+const RoomMember = styled.span`
 `;
 
 export interface Room{
@@ -79,14 +109,20 @@ export default function Home() {
   return (
     <>
       <StyleButton onClick={createRoom} color='mediumseagreen'>방만들기</StyleButton>
-      <StyleButton onClick={setRoomlist} color='mediumseagreen'>방목록</StyleButton>
+      {/* <StyleButton onClick={setRoomlist} color='mediumseagreen'>방목록</StyleButton> */}
       <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>
-      <RoomListWrap>
+      <ReFreshDiv>
+        <RoomInfo>
+          생성된 방:{roomList?.length}
+        </RoomInfo>
+        <BiRefresh size={25} onClick={setRoomlist}/>
+      </ReFreshDiv>
+      <RoomList>
       {
               roomList?.map((room, index) => {
 
                   return(
-                    <RoomList key={index} color='mediumseagreen'>
+                    <Room key={index} color='mediumseagreen'>
                       <Link 
                     href={{
                       pathname:'chat',
@@ -97,13 +133,15 @@ export default function Home() {
                     }}
                     as={'/'}
                     >
-                      {room.roomName} / {room.members}
+                      <RoomName>{room.roomName}</RoomName>
+                      
                     </Link>
-                    </RoomList>
+                    <RoomMember>{room.members}명</RoomMember>
+                    </Room>
                   );
               })
             }
-      </RoomListWrap>
+      </RoomList>
     </>
   )
 }

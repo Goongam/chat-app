@@ -9,6 +9,7 @@ import { Chat } from "@/pages/api/types/chat";
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import { ChatDiv, RoomTitle } from "..";
 import { Room } from "../..";
 
 export default function ChatRoom(){
@@ -54,9 +55,13 @@ export default function ChatRoom(){
     }
     return (
     <>
-        <h4>랜덤채팅:{roomIndex}</h4>
+        <RoomTitle>랜덤채팅:{roomIndex}</RoomTitle>
         <ExitRoomBtn />
-        <Chatting userName={userName} chatInit={[ChatInit]}/>
+        <ChatDiv>
+            
+            <Chatting userName={userName} chatInit={[ChatInit]}/>
+        </ChatDiv>
+        
         <SubmitBtn roomIndex={roomIndex} />
     </>
     );

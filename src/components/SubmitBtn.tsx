@@ -2,6 +2,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { RoomIndex } from "@/pages/api/types/chat";
 import { useState } from "react"
 import styled from "styled-components";
+import { CHATINPUTSIZE } from "../constants"
 
 const InputDiv = styled.div`
     display: flex;
@@ -21,7 +22,7 @@ const Submit = styled.button`
     background-color: antiquewhite;
     border: 0;
     border-radius: 0 0 1rem 0;
-    width: 50px;
+    width: ${CHATINPUTSIZE}px;
 `
 interface RoomIndexObj{
     roomIndex:RoomIndex,

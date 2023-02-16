@@ -7,8 +7,8 @@ const Containter = styled.div`
     margin: 0 auto;
     text-align: center;
     border: 2px solid green;
-    width: 500px;
-    height: fit-content;
+    /* width: 500px; */
+    height: calc(100vh - 40px);
     border-radius: 1rem;
 `;
 

@@ -3,6 +3,7 @@ import { Chats, UserName } from "@/pages/api/types/chat";
 import {useEffect, useState} from 'react';
 import styled from "styled-components";
 import Chat from "./Chat";
+import {CHATINPUTSIZE, funcBtnHeight, memberListHeight, titleHeight} from "../constants";
 
 const ChatContent = styled.div`
     margin: 0 10px 10px 10px;
@@ -11,7 +12,7 @@ const ChatContent = styled.div`
 const ScrollDiv = styled.div`
     overflow-y: scroll;
 
-    height: 528px;
+    height: calc(100vh - ${CHATINPUTSIZE}px - ${funcBtnHeight}px - ${titleHeight}px - 33px);
     display:flex;
     flex-direction: column-reverse;
     /* overflow-y:auto; */

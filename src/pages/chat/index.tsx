@@ -8,7 +8,24 @@ import { useSocket } from "@/hooks/useSocket";
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import styled from "styled-components";
 import { Room } from "..";
+import { titleHeight, funcBtnHeight } from "../../constants"
+
+export const RoomTitle = styled.div`
+    display: flex;
+    justify-content: center;
+    word-break: break-all;
+    height: ${titleHeight}px;
+`;
+
+export const funcButton = styled.button`
+    height: ${funcBtnHeight}px;
+`
+
+export const ChatDiv = styled.div`
+    position: relative;
+`
 
 export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
@@ -83,11 +100,13 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
 
     return (
     <>
-        <h4>방:{roomName}</h4>
+        <RoomTitle>{roomName}</RoomTitle>
         <ExitRoomBtn />
-        <InviteBtn host={host} roomIndex={roomIndex} />       
-        <RoomMembers />
-        <Chatting userName={userName}/>
+        <InviteBtn host={host} roomIndex={roomIndex} />    
+        <ChatDiv>
+            <RoomMembers />
+            <Chatting userName={userName}/>
+        </ChatDiv>
         <SubmitBtn roomIndex={roomIndex} />
     </>
     );
