@@ -61,13 +61,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           changeRoom(socket, currentRoom, roomid);
         });
 
-        socket.on('create', async (userName, roomName) => {
-
+        socket.on('create', async ({userName, roomName, password}) => {
+          console.log('pass:',password);
+          
           if(!(io.of('/').adapter.rooms.get(roomName)?.size)){
 
             socket.nickName = userName;
 
-            const roomIndex = await createRoomDB(roomName);
+            const roomIndex = await createRoomDB(roomName, password);
 
             socket.emit('roomIndex',roomIndex);
             changeRoom(socket, '', `${roomIndex}`);
@@ -85,14 +86,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
 
   //랜덤채팅
-    io.of('/random').on('connection', async (socket: SocketWithNick)=>{
+    io.of(namespaces.random).on('connection', async (socket: SocketWithNick)=>{
       // const noMathchSockets = io.of('/random').adapter.rooms;
 
-      console.log(io.of('/random').adapter.rooms);
+      console.log(io.of(namespaces.random).adapter.rooms);
       
       
       if(getNoMatchingSocket(io).length >= 2){
-        let sockets = await io.of('/random').fetchSockets();
+        let sockets = await io.of(namespaces.random).fetchSockets();
         const socket1 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[0]);
         const socket2 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[1]);
 
@@ -117,7 +118,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         
         insertMsgDB(socket.handshake.address, room, message);
 
-        io.of('/random').to(room).emit("chat",socket.id, message);
+        io.of(namespaces.random).to(room).emit("chat",socket.id, message);
         // socket.emit("pchat","개인채팅");
       });
       socket.emit('userName',socket.id);

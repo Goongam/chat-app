@@ -11,15 +11,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     const rooms = getRooms(io);
 
     const roomsWithName = await Promise.all(rooms.map(room=>getRoom(room)));
+    
     const roomList = roomsWithName.map((room)=>{
         let roomid = room?._id.toHexString() as string;
         return {
             id: roomid,
             roomName: room?.roomName,
-            members: io.of('/').adapter.rooms.get(roomid)?.size
+            members: io.of('/').adapter.rooms.get(roomid)?.size,
+            isPass: room?.password ? true : false,
         }
     });
-    console.log('rooms:',roomList);
+
     res.status(201).json({
         rooms: roomList,
     });

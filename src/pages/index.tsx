@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import io from "socket.io-client";
 import styled from "styled-components";
 import {BiRefresh} from 'react-icons/bi';
+import {AiFillLock} from 'react-icons/ai';
 
 const StyleButton = styled.button`
   font-size: 1em;
@@ -57,6 +58,7 @@ export interface Room{
   id: string,
   roomName: string,
   members: number,
+  isPass: boolean,
 }
 
 export default function Home() {
@@ -80,6 +82,7 @@ export default function Home() {
 
   const createRoom = async() =>{
     const roomName = prompt('방제목 입력');
+    const password = prompt('방 비밀번호 입력');
     if(roomName === null) return;
 
     // const {rooms} = await(await fetch('/api/rooms')).json();
@@ -93,6 +96,7 @@ export default function Home() {
         query: {
             room: roomName,
             create: true,
+            password,
         },
        },
        `/`);
@@ -133,9 +137,12 @@ export default function Home() {
                     }}
                     as={'/'}
                     >
-                      <RoomName>{room.roomName}</RoomName>
+                        <RoomName>
+                          {room.isPass && <AiFillLock />}
+                          {room.roomName}
+                        </RoomName>
                       
-                    </Link>
+                      </Link>
                     <RoomMember>{room.members}명</RoomMember>
                     </Room>
                   );

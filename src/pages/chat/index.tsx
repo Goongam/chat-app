@@ -27,6 +27,7 @@ export const ChatDiv = styled.div`
     position: relative;
 `
 
+
 export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
     
@@ -36,15 +37,21 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
     const [roomIndex, setRoomIndex] = useState<string|string[]|undefined>('');
 
     const router = useRouter();
-    let {room, create} = router.query;
+    let {room, create, password} = router.query;
     
     const {socket, disconnect} = useSocket();
 
+
+    const exitRoom = useCallback((message?:string) => {
+        disconnect();
+        if(message) alert(message);
+        router.push('/');
+    },[disconnect, router]);
+    
     const joinRoom = useCallback((type: 'join'|'create') =>{
         const inputName = prompt('사용할 이름을 입력해 주세요');
         if(!inputName){
-            disconnect();
-            router.push('/');
+            exitRoom();
             return;
         }
         setUserName(inputName);
@@ -53,28 +60,71 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             socket.emit('join',inputName,'',room);
             setRoomIndex(room);
         }else{
-            socket.emit('create',inputName,room);
+            socket.emit('create',{
+                userName: inputName,
+                roomName: room,
+                password,
+            });
         }
 
-    },[room, router, socket, disconnect]);
+    },[exitRoom, socket, room, password]);
+
+    const verityRoom = async (currentRoom:Room)=>{
+        if(!currentRoom.isPass){
+            return true;
+        }
+
+        const inputpass = prompt('비밀번호를 입력해주세요');
+        
+        if(!inputpass) {
+            return false;
+        }
+
+        const {verify} = await (await fetch('/api/verity',{
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                roomid: currentRoom.id,
+                inputpass
+            }),
+        })).json().catch(()=>{return false});
+
+        
+        if(verify === 'wrong'){
+            return false;
+        }
+
+        return true;
+
+    }
 
 
     const socketInit = useCallback(async () =>{
         console.log('연결');
 
         //url접근
-        const {rooms} = await(await fetch('/api/rooms')).json();
-
-        if(rooms.map((room:Room)=>room.id).includes(room)){ //방 O
-            joinRoom('join');
+        
+        const roomdata = await(await fetch('/api/rooms')).json();
+        const rooms:Room[] = roomdata.rooms;
+        
+        // if(rooms.map((room:Room)=>room.id).includes(room as string)){ //방 O
+        const currentRoom = rooms.find(e => e.id === room);
+        if(currentRoom){ //방 O
+            const verity = await verityRoom(currentRoom);
+            if(verity) joinRoom('join');
+            else{
+                exitRoom('비밀번호가 틀렸습니다');
+                return;
+            }
 
         }else{ //방X
             if(create === 'true'){
                 joinRoom('create');
                 
             }else{
-                alert('존재하지 않는 채팅방 입니다.');
-                router.push('/');
+                exitRoom('존재하지 않는 채팅방 입니다.');
                 return;
             }
         }
@@ -90,7 +140,7 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             disconnect();
         };
 
-    },[create, joinRoom, room, router, socket, disconnect]); 
+    },[socket, room, joinRoom, exitRoom, create, disconnect]); 
 
     useEffect(()=>{
         if(room) socketInit();
