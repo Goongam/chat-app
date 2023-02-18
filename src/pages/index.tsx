@@ -5,6 +5,8 @@ import io from "socket.io-client";
 import styled from "styled-components";
 import {BiRefresh} from 'react-icons/bi';
 import {AiFillLock} from 'react-icons/ai';
+import Modal from "@/components/Modal";
+import CreateRoom from "@/components/CreateRoom";
 
 const StyleButton = styled.button`
   font-size: 1em;
@@ -64,7 +66,7 @@ export interface Room{
 export default function Home() {
 
   const [roomList, setRoomList] = useState<Room[]>();
-  
+  const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
 
   
@@ -80,29 +82,6 @@ export default function Home() {
     setRoomList(rooms);
   }
 
-  const createRoom = async() =>{
-    const roomName = prompt('방제목 입력');
-    const password = prompt('방 비밀번호 입력');
-    if(roomName === null) return;
-
-    // const {rooms} = await(await fetch('/api/rooms')).json();
-    // if(rooms.includes(roomName)){
-    //     alert('중복된 방제목');
-    //     return; 
-    // }
-
-    router.push({
-        pathname:'chat',
-        query: {
-            room: roomName,
-            create: true,
-            password,
-        },
-       },
-       `/`);
-
-  }
-
   const joinRandomChat = ()=>{
     router.push({
       pathname:'chat/random',
@@ -112,7 +91,8 @@ export default function Home() {
 
   return (
     <>
-      <StyleButton onClick={createRoom} color='mediumseagreen'>방만들기</StyleButton>
+      {modalOpen && <Modal setModalOpen={setModalOpen}><CreateRoom /></Modal>}
+      <StyleButton onClick={()=>setModalOpen(true)} color='mediumseagreen'>방만들기</StyleButton>
       {/* <StyleButton onClick={setRoomlist} color='mediumseagreen'>방목록</StyleButton> */}
       <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>
       <ReFreshDiv>
