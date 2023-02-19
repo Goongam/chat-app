@@ -37,7 +37,9 @@ const ModalBody = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 5px 0 10px 0;
+    padding: 5px 0 20px 0;
+
+    border-radius: 1rem;
 `
 
 const Modal = styled.div`
@@ -62,8 +64,9 @@ const Modal = styled.div`
 
 const ExitButton = styled.button`
   width: 20px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0);
   border: none;
+  margin-right: 5px;
   margin-left: auto;
 `
 

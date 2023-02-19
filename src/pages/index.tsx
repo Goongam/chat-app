@@ -2,11 +2,12 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { use, useEffect, useState } from "react";
 import io from "socket.io-client";
-import styled from "styled-components";
+import styled, {keyframes} from "styled-components";
 import {BiRefresh} from 'react-icons/bi';
-import {AiFillLock} from 'react-icons/ai';
+import {AiFillLock, AiOutlineLoading3Quarters} from 'react-icons/ai';
 import Modal from "@/components/Modal";
 import CreateRoom from "@/components/CreateRoom";
+import { useFetchRooms } from "@/hooks/useFetchRooms";
 
 const StyleButton = styled.button`
   font-size: 1em;
@@ -56,6 +57,18 @@ export const RoomName = styled.div`
 const RoomMember = styled.span`
 `;
 
+const rotation = keyframes`
+    from {-webkit-transform: rotate(0deg);}
+    to   {-webkit-transform: rotate(359deg);}
+`
+
+const Loading = styled.div`
+  .loadingIcon{
+    animation: ${rotation} 1s infinite;
+  }
+`
+
+
 export interface Room{
   id: string,
   roomName: string,
@@ -69,17 +82,17 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
 
+  const {rooms, isLoading, refetch} = useFetchRooms();
   
   useEffect(()=>{
     (async () => {
         await fetch("/api/socketio");
+
     })();
   },[])
 
-  const setRoomlist = async()=>{
-    // socket.emit('rooms');
-    const {rooms} = await(await fetch('/api/rooms')).json();
-    setRoomList(rooms);
+  const setRoomlist = ()=>{
+    refetch();
   }
 
   const joinRandomChat = ()=>{
@@ -89,6 +102,8 @@ export default function Home() {
      `/`);
   }
 
+
+
   return (
     <>
       {modalOpen && <Modal setModalOpen={setModalOpen}><CreateRoom /></Modal>}
@@ -97,13 +112,19 @@ export default function Home() {
       <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>
       <ReFreshDiv>
         <RoomInfo>
-          생성된 방:{roomList?.length}
+          생성된 방:{roomList?.length ?? 0}
         </RoomInfo>
         <BiRefresh size={25} onClick={setRoomlist}/>
       </ReFreshDiv>
-      <RoomList>
       {
-              roomList?.map((room, index) => {
+        isLoading ? 
+        <Loading>
+          <AiOutlineLoading3Quarters className="loadingIcon" />
+        </Loading>
+        :
+        <RoomList>
+      {
+              rooms?.map((room, index) => {
 
                   return(
                     <Room key={index} color='mediumseagreen'>
@@ -129,6 +150,7 @@ export default function Home() {
               })
             }
       </RoomList>
+      } 
     </>
   )
 }
