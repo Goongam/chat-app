@@ -30,13 +30,14 @@ const modalBgShow = keyframes`
 
 const ModalBody = styled.div`
     width: min(550px, 93vw);
-    height: 80vh;
+    /* height: calc(fit-content + 10px); */
     background-color: white;
 
     animation: ${modalShow} 0.3s;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding: 5px 0 10px 0;
 `
 
 const Modal = styled.div`
