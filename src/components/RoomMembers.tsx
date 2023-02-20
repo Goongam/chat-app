@@ -21,7 +21,7 @@ const Members = styled.div<{isOpen:boolean}>`
     height: ${props => props.isOpen ? '20vh' : `${memberListHeight}px`};
     border-top: 1px solid black;
     border-bottom: 1px solid black;
-    transition-duration: 0.1s;
+    transition-duration: 0.1s; 
     transition-property: height;
     /* overflow-y: scroll; */
     display: flex;
@@ -32,25 +32,23 @@ const Members = styled.div<{isOpen:boolean}>`
     background-color:white;
     position:absolute;
 
-    
 `;
 
 
 const DropDownButton = styled.div`
     display:'flex';
     height:'100%'; 
-    margin-top:'10px';
+    margin-top:'20px';
 `
 
 const MemberLength = styled.div`
     display: flex;
     align-items: center;
     font-size: 17px;
-
+    height: 100%;
     margin-left: 5px;
 `
 
-//TODO: DropDown css center로 수정
 
 export default function RoomMembers(){
 
@@ -69,7 +67,10 @@ export default function RoomMembers(){
     const dropDownProp = {
         size:'20',
         onClick:()=>{setIsOpen(!isOpen)},
-        style:{marginRight:'5px'}
+        style:{
+            marginRight:'5px',
+            marginTop:'5px'
+        }
     }
 
     return (
