@@ -64,14 +64,18 @@ export default function CreateRoom(){
 
         
     }
-//TODO: password 체크 활성화/비활성화,  CSS
-//TODO: 스크롤 방지
     return(
     <>
         <div>방 만들기</div>
         <InputForm>
             <div>방제목</div>
-            <Input ref={titleRef} type={'text'} value={title} onChange={titleHandleChange}></Input>
+            <Input 
+                ref={titleRef} 
+                type={'text'} 
+                value={title} 
+                onChange={titleHandleChange}
+                required>
+            </Input>
 
             <div>비밀번호</div> 
             <Input 

@@ -20,12 +20,14 @@ const ScrollDiv = styled.div`
     ::-webkit-scrollbar{
         display: none;
     }
-
-/* height:535px; */
-/* [출처] [html/css] css만으로 스크롤바 하단고정하는방법/스크롤하단고정/채팅스크롤구현/챗봇구현/HTML채팅스크롤/scroll 아래|작성자 진짱 */
 `;
 
-export default function Chatting({userName, chatInit = []}: UserName){
+const chatTypeNick = {
+    'random':'상대방',
+    'ai':'AI',
+};
+
+export default function Chatting({userName, chatInit = [], chatType = 'normal'}: UserName){
     const [chat, setChat] = useState<Chats>(chatInit);
     const {socket} = useSocket();
 
@@ -54,7 +56,7 @@ export default function Chatting({userName, chatInit = []}: UserName){
                 (
                     <Chat 
                         key={index} 
-                        userName={chat.userName} 
+                        userName={chatType === 'normal' ? chat.userName : chatTypeNick[chatType]} 
                         message={chat.message} 
                         isMine={userName === chat.userName} 
                         type={chat.type} 

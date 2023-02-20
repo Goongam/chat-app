@@ -43,8 +43,8 @@ const ModalBody = styled.div`
 `
 
 const Modal = styled.div`
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 
   /* 최상단 위치 */
   z-index: 999;
@@ -93,7 +93,7 @@ export default function CreateRoomModal({setModalOpen, children}:Props){
             document.removeEventListener('mousedown', handler);
             // document.removeEventListener('touchstart', handler); // 모바일 대응
         };
-    });
+    },[setModalOpen]);
 
     return (
 

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import css from "styled-jsx/css";
 
 const Name = styled.div`
-    /* display: flex; */
+    font-size: 13px;
 `
 const Message = styled.div`
     /* display: flex; */
@@ -29,10 +29,11 @@ const Line = styled.div<{ mine: boolean|undefined }>`
     ${Content}{
         align-items: ${ (props)=> props.mine ? `flex-end` : `flex-start` };
     }
+
+    ${Name}{
+        margin-top: ${ (props)=> props.mine ? '15px' : '10px' }
+    }
 `;
-
-
-
 
 
 export default function Chatting({userName, message, isMine, type}:Chat){
@@ -47,7 +48,7 @@ export default function Chatting({userName, message, isMine, type}:Chat){
     return (
         <Line mine={isMine}>
             <Content>
-                <Name>{userName}</Name>
+                <Name>{isMine ? '' : userName}</Name>
                 <Message>{message}</Message>
             </Content>
         </Line>

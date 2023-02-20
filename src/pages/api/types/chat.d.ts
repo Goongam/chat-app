@@ -30,6 +30,7 @@ export type Chats = Array<Chat>;
 export interface UserName{
   userName:string|null,
   chatInit?:Chat[],
+  chatType?: 'normal'|'random'|'ai',
 }
 
 // export interface Chatting{

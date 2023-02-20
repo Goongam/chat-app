@@ -55,11 +55,11 @@ export default function ChatRoom(){
     }
     return (
     <>
-        <RoomTitle>랜덤채팅:{roomIndex}</RoomTitle>
+        <RoomTitle>랜덤채팅</RoomTitle>
         <ExitRoomBtn />
         <ChatDiv>
             
-            <Chatting userName={userName} chatInit={[ChatInit]}/>
+            <Chatting userName={userName} chatInit={[ChatInit]} chatType='random'/>
         </ChatDiv>
         
         <SubmitBtn roomIndex={roomIndex} />

@@ -15,6 +15,7 @@ import { titleHeight, funcBtnHeight } from "../../constants"
 export const RoomTitle = styled.div`
     display: flex;
     justify-content: center;
+    align-items: center;
     word-break: break-all;
     height: ${titleHeight}px;
 `;
@@ -49,7 +50,11 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
     },[disconnect, router]);
     
     const joinRoom = useCallback((type: 'join'|'create') =>{
-        const inputName = prompt('사용할 이름을 입력해 주세요');
+        let inputName:string|null = ''
+        do{
+            inputName = prompt('사용할 이름을 입력해 주세요');
+        }while(inputName && 10 <= inputName?.length)
+
         if(!inputName){
             exitRoom();
             return;
