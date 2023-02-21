@@ -26,6 +26,8 @@ const Line = styled.div<{ mine: boolean|undefined }>`
     display: flex;
     justify-content: ${ (props)=> props.mine ? `end` : `start` };
 
+    margin: 0 10px 0 10px;
+
     ${Content}{
         align-items: ${ (props)=> props.mine ? `flex-end` : `flex-start` };
     }

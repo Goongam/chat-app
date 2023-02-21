@@ -6,20 +6,22 @@ import Chat from "./Chat";
 import {CHATINPUTSIZE, funcBtnHeight, memberListHeight, titleHeight} from "../constants";
 
 const ChatContent = styled.div`
-    margin: 0 10px 10px 10px;
+    /* margin: 0 10px 10px 10px; */
+    width: 100%;
 `;
 
 const ScrollDiv = styled.div`
     overflow-y: scroll;
 
-    height: calc(100vh - ${CHATINPUTSIZE}px - ${funcBtnHeight}px - ${titleHeight}px - 33px);
+    /* height: calc(100vh - ${CHATINPUTSIZE}px - ${funcBtnHeight}px - ${titleHeight}px - 33px); */
+    width: 100%;
     display:flex;
     flex-direction: column-reverse;
-    /* overflow-y:auto; */
     -ms-overflow-style: none;
     ::-webkit-scrollbar{
         display: none;
     }
+
 `;
 
 const chatTypeNick = {

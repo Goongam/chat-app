@@ -20,14 +20,29 @@ export const RoomTitle = styled.div`
     height: ${titleHeight}px;
 `;
 
-export const funcButton = styled.button`
+const FuncButtons = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+
     height: ${funcBtnHeight}px;
+
+    padding: 0 4px 0 4px;
 `
 
 export const ChatDiv = styled.div`
+    display: flex;
     position: relative;
+    flex:1;
+    overflow: hidden;
+    margin-bottom: 3px;
 `
-
+export const ChatContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 2px;
+`
 
 export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
 
@@ -154,16 +169,22 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
     if(!room) return <>찾을 수 없는 채팅 방</>;
 
     return (
-    <>
+    <ChatContainer>
         <RoomTitle>{roomName}</RoomTitle>
-        <ExitRoomBtn />
-        <InviteBtn host={host} roomIndex={roomIndex} />    
+
+        <FuncButtons>
+            <InviteBtn host={host} roomIndex={roomIndex} />
+            <ExitRoomBtn />
+        </FuncButtons>    
+        
         <ChatDiv>
             <RoomMembers />
             <Chatting userName={userName}/>
         </ChatDiv>
+
         <SubmitBtn roomIndex={roomIndex} />
-    </>
+
+    </ChatContainer>
     );
 }
 

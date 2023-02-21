@@ -11,12 +11,16 @@ import { useFetchRooms } from "@/hooks/useFetchRooms";
 
 const StyleButton = styled.button`
   font-size: 1em;
-  margin: 1em;
+  margin: 0 2em 0 2em;
   padding: 0.25em 1em;
   border-radius: 3px;
   background-color: white;
   color: ${props => props.color};
   border: 2px solid ${props => props.color};
+
+  :first-child{
+    margin-top: 10px;
+  }
 `;
 const ReFreshDiv = styled.div`
   display: flex;
@@ -29,7 +33,12 @@ const RoomList = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
 
+  overflow: scroll;
+  ::-webkit-scrollbar{
+        display: none;
+    }
 `;
 const Room = styled.div`
   width: 75%;
@@ -68,6 +77,15 @@ const Loading = styled.div`
   }
 `
 
+const HomeStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  gap: 10px;
+
+`
 
 export interface Room{
   id: string,
@@ -105,17 +123,18 @@ export default function Home() {
 
 
   return (
-    <>
+    <HomeStyle>
       {modalOpen && <Modal setModalOpen={setModalOpen}><CreateRoom /></Modal>}
       <StyleButton onClick={()=>setModalOpen(true)} color='mediumseagreen'>방만들기</StyleButton>
-      {/* <StyleButton onClick={setRoomlist} color='mediumseagreen'>방목록</StyleButton> */}
       <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>
+
       <ReFreshDiv>
         <RoomInfo>
           생성된 방:{roomList?.length ?? 0}
         </RoomInfo>
         <BiRefresh size={25} onClick={setRoomlist}/>
       </ReFreshDiv>
+      
       {
         isLoading ? 
         <Loading>
@@ -123,34 +142,34 @@ export default function Home() {
         </Loading>
         :
         <RoomList>
-      {
-              rooms?.map((room, index) => {
+          {
+            rooms?.map((room, index) => {
 
-                  return(
-                    <Room key={index} color='mediumseagreen'>
-                      <Link 
-                    href={{
-                      pathname:'chat',
-                      query: {
-                          room: room.id,
-                          // createRoom: true,
-                      },
-                    }}
-                    as={'/'}
-                    >
-                        <RoomName>
-                          {room.isPass && <AiFillLock />}
-                          {room.roomName}
-                        </RoomName>
-                      
-                      </Link>
-                    <RoomMember>{room.members}명</RoomMember>
-                    </Room>
-                  );
-              })
-            }
+                return(
+                  <Room key={index} color='mediumseagreen'>
+                    <Link 
+                  href={{
+                    pathname:'chat',
+                    query: {
+                        room: room.id,
+                        // createRoom: true,
+                    },
+                  }}
+                  as={'/'}
+                  >
+                      <RoomName>
+                        {room.isPass && <AiFillLock />}
+                        {room.roomName}
+                      </RoomName>
+                    
+                    </Link>
+                  <RoomMember>{room.members}명</RoomMember>
+                  </Room>
+                );
+            })
+          }
       </RoomList>
       } 
-    </>
+    </HomeStyle>
   )
 }
