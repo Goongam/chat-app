@@ -1,17 +1,6 @@
 import { Configuration, OpenAIApi } from "openai";
 
 
-
-
-
-
-export function aiInit(){
-    const configuration = new Configuration({
-        apiKey: "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",
-      });
-    const openai = new OpenAIApi(configuration);
-}
-
 export class OpenAI{
     private configuration: Configuration;
     private openai: OpenAIApi;
@@ -19,7 +8,7 @@ export class OpenAI{
 
     constructor(){
         this.configuration = new Configuration({
-            apiKey: "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",
+            apiKey: process.env.OPENAPI_KEY,
           });
         this.openai = new OpenAIApi(this.configuration);
         this.prompt = [];
