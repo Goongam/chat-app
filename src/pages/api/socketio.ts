@@ -10,6 +10,8 @@ import { createRoomDB, dbInit, insertMsgDB } from "@/lib/dbUtil";
 
 import { namespaces } from "@/constants";
 
+import { OpenAI } from "@/lib/openAi";
+
 export const config = {
   api: {
     bodyParser: false,
@@ -19,9 +21,15 @@ export const config = {
 export interface SocketWithNick extends Socket{
   nickName?: string,
 }
+
+export interface SocketWithAI extends Socket{
+  openAI?: OpenAI,
+}
+
 export interface Rooms{
   [key:number]: string,
 }
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
     if (res.socket.server.io) {
@@ -31,6 +39,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     // connectDB();
     dbInit();
+
+ 
 
     console.log("New Socket.io server...✅");
 
@@ -89,9 +99,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     io.of(namespaces.random).on('connection', async (socket: SocketWithNick)=>{
       // const noMathchSockets = io.of('/random').adapter.rooms;
 
-      console.log(io.of(namespaces.random).adapter.rooms);
-      
-      
       if(getNoMatchingSocket(io).length >= 2){
         let sockets = await io.of(namespaces.random).fetchSockets();
         const socket1 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[0]);
@@ -119,9 +126,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         insertMsgDB(socket.handshake.address, room, message);
 
         io.of(namespaces.random).to(room).emit("chat",socket.id, message);
-        // socket.emit("pchat","개인채팅");
       });
+
+
       socket.emit('userName',socket.id);
+
+    });
+
+
+    io.of(namespaces.ai).on('connection', async (socket: SocketWithAI)=>{
+      const roomIndex = await createRoomDB('ai-chat');
+      socket.join(roomIndex);
+      socket.emit('userName',socket.id);
+      socket.emit('roomIndex',roomIndex);
+
+      socket.openAI = new OpenAI();
+
+      socket.on('chat', async (message)=>{
+        if(!socket.openAI){
+          socket.emit('notice', socket.id, 'AI서버와 연결 실패');
+          return;
+        }
+        socket.emit('chat', socket.id, message);
+
+        const receiveMsg = await socket.openAI.chat(message);
+        socket.emit('chat', 'AI', receiveMsg);
+      });
+
+
 
     });
 

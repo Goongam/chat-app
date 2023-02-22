@@ -4,6 +4,7 @@ import InviteBtn from "@/components/InviteBtn";
 import NormalSubmit from "@/components/NormalSubmit";
 import RoomMembers from "@/components/RoomMembers";
 import { SubmitBtn } from "@/components/SubmitBtn";
+import { namespaces } from "@/constants";
 import { useSocket } from "@/hooks/useSocket";
 import { Chat } from "@/pages/api/types/chat";
 
@@ -12,6 +13,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { ChatContainer, ChatDiv, RoomTitle } from "..";
 import { Room } from "../..";
+import AiSubmit from '../../../components/AiSubmit';
 
 export default function ChatRoom(){
 
@@ -23,9 +25,7 @@ export default function ChatRoom(){
 
     const router = useRouter();
 
-    const {socket, disconnect} = useSocket('/random');
-
-
+    const {socket, disconnect} = useSocket(namespaces.ai);
 
     const socketInit = useCallback(async () =>{
 
@@ -51,19 +51,19 @@ export default function ChatRoom(){
     
     // if(!room) return <>찾을 수 없는 채팅 방</>;
     const ChatInit:Chat = {
-        message: '대화 상대 찾는 중...',
+        message: 'AI채팅',
         type:'notice',
     }
     return (
     <ChatContainer>
-        <RoomTitle>랜덤채팅</RoomTitle>
+        <RoomTitle>AI채팅</RoomTitle>
         <ExitRoomBtn />
         <ChatDiv>
             
-            <Chatting userName={userName} chatInit={[ChatInit]} chatType='random'/>
+            <Chatting userName={userName} chatType='ai'/>
         </ChatDiv>
         
-        <NormalSubmit roomIndex={roomIndex} />
+        <AiSubmit roomIndex={roomIndex} />
     </ChatContainer>
     );
 }

@@ -1,6 +1,6 @@
 import { useSocket } from "@/hooks/useSocket";
 import { RoomIndex } from "@/pages/api/types/chat";
-import { useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 import styled from "styled-components";
 import { CHATINPUTSIZE } from "../constants"
 
@@ -24,32 +24,26 @@ const Submit = styled.button`
     border-radius: 0 0 1rem 0;
     width: ${CHATINPUTSIZE}px;
 `
-interface RoomIndexObj{
-    roomIndex:RoomIndex,
+
+interface Props{
+    inputMsg:string,
+    setInputMsg:Dispatch<SetStateAction<string>>,
+    sendMsg: (arg0: string)=>void,
 }
 
-export function SubmitBtn({roomIndex}: RoomIndexObj){
-    const [inputMsg, setInputMsg] = useState<string>('');
-    const {socket} = useSocket();
+export function SubmitBtn({inputMsg, setInputMsg, sendMsg}:Props){
 
-    const sendMsg = () =>{
-        
-        if(inputMsg){
-            socket.emit("chat", inputMsg, `${roomIndex}`);
-            setInputMsg("");
-        }     
-      }
     return(
         <InputDiv>
             <InputText 
                     type={"Text"}
                     onChange={(e)=>{setInputMsg(e.target.value)}}
                     onKeyDown={(e)=>{
-                        if(e.key === 'Enter') sendMsg();
+                        if(e.key === 'Enter') sendMsg(inputMsg);
                     }}
                     value={inputMsg}
             />
-            <Submit onClick={sendMsg}>전송</Submit>
+            <Submit onClick={()=>sendMsg(inputMsg)}>전송</Submit>
         </InputDiv>
     );
 }

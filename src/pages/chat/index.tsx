@@ -1,6 +1,7 @@
 import Chatting from "@/components/Chatting";
 import ExitRoomBtn from "@/components/ExitRoomBtn";
 import InviteBtn from "@/components/InviteBtn";
+import NormalSubmit from "@/components/NormalSubmit";
 import RoomMembers from "@/components/RoomMembers";
 import { SubmitBtn } from "@/components/SubmitBtn";
 import { useSocket } from "@/hooks/useSocket";
@@ -182,7 +183,7 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
             <Chatting userName={userName}/>
         </ChatDiv>
 
-        <SubmitBtn roomIndex={roomIndex} />
+        <NormalSubmit roomIndex={roomIndex} />
 
     </ChatContainer>
     );

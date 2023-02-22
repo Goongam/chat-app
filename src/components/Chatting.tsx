@@ -34,20 +34,13 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
     const {socket} = useSocket();
 
     useEffect(()=>{
-        socket.on('chat', (userName, message) => {            
+        socket.on('chat', (userName, message) => {              
             setChat((prev) => [...prev, {userName, message, type:'chat'}]);
         });
         socket.on('notice', (message)=>{
             setChat((prev) => [...prev, {message, type:'notice'}]);
         });
         
-        socket.on('notice-random', (type)=>{
-            if(type==='join'){
-                setChat([{message:'대화 상대를 찾았습니다', type:'notice'}]);
-            }else if(type ==='leave'){
-                setChat((prev) => [...prev, {message:'상대방이 퇴장하였습니다', type:'notice'}]);
-            }
-        })
     },[socket]);
 
 

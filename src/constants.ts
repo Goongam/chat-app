@@ -1,6 +1,9 @@
 export const namespaces = {
     random: '/random',
+    ai: '/ai'
 }
+
+
 
 export const CHATINPUTSIZE = 50;
 export const titleHeight = 50;

@@ -120,6 +120,12 @@ export default function Home() {
      `/`);
   }
 
+  const joinAiChat = ()=>{
+    router.push({
+      pathname:'chat/ai',
+     },
+     `/`);
+  }
 
 
   return (
@@ -127,6 +133,7 @@ export default function Home() {
       {modalOpen && <Modal setModalOpen={setModalOpen}><CreateRoom /></Modal>}
       <StyleButton onClick={()=>setModalOpen(true)} color='mediumseagreen'>방만들기</StyleButton>
       <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>
+      <StyleButton onClick={joinAiChat} color='mediumseagreen'>AI채팅</StyleButton>
 
       <ReFreshDiv>
         <RoomInfo>
