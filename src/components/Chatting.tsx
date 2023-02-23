@@ -40,6 +40,9 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
         socket.on('notice', (message)=>{
             setChat((prev) => [...prev, {message, type:'notice'}]);
         });
+        socket.on('notice-random',(message)=>{
+            setChat((prev) => [...prev, {message, type:'notice'}]);
+        });
         
     },[socket]);
 

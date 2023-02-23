@@ -104,6 +104,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         const socket1 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[0]);
         const socket2 = sockets.find((socket)=>socket.id === getNoMatchingSocket(io)[1]);
 
+        // console.log('socket1',socket1);
+        // console.log('socket2',socket2);
+
         if(socket1 && socket2) {//매칭성공
           const roomIndex = await createRoomDB('random-chat');
           const matchRoomIndex = 'match'+roomIndex;
@@ -114,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           socket2.join(matchRoomIndex);
           
           io.of(namespaces.random).to(matchRoomIndex).emit('roomIndex',matchRoomIndex);
-          io.of(namespaces.random).to(matchRoomIndex).emit('notice-random', 'join');
+          io.of(namespaces.random).to(matchRoomIndex).emit('notice-random', '상대방이 입장하였습니다');
           
         }
           
