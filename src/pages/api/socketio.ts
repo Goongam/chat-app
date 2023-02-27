@@ -182,7 +182,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     });
 
     io.of(namespaces.random).adapter.on('leave-room',async (room, id) => {
-      io.of(namespaces.random).to(room).emit('notice-random', 'leave');
+      io.of(namespaces.random).to(room).emit('notice-random', '상대방이 퇴장하였습니다');
     })
 
     // io.of(namespaces.random).adapter.on('join-room',async (room, id) => {
