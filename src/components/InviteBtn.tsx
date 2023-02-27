@@ -2,9 +2,10 @@ import { InviteType } from "@/pages/api/types/chat";
 import { doCopy } from "@/util/doCopy";
 import {FuncButton} from './ExitRoomBtn';
 
-export default function InviteBtn({host, roomIndex}:InviteType){
+export default function InviteBtn({roomIndex}:InviteType){
+
     const invite = () =>{
-        const url = `${host}/invite/${roomIndex}`;
+        const url = `${window.location.host}/invite/${roomIndex}`;
         doCopy(url);
     }
     return(

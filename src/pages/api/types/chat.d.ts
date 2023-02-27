@@ -13,7 +13,7 @@ export type NextApiResponseServerIO = NextApiResponse & {
 export type Host = string|undefined;
 export type RoomIndex = string|string[]|undefined;
 export interface InviteType{
-  host: Host,
+  // host: Host,
   roomIndex: RoomIndex,
 }
 

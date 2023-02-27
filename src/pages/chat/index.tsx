@@ -6,7 +6,7 @@ import RoomMembers from "@/components/RoomMembers";
 import { SubmitBtn } from "@/components/SubmitBtn";
 import { useSocket } from "@/hooks/useSocket";
 
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
+import { GetServerSideProps, GetServerSidePropsContext, GetStaticPropsContext, InferGetServerSidePropsType, NextApiRequest } from "next";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -45,7 +45,7 @@ export const ChatContainer = styled.div`
     gap: 2px;
 `
 
-export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getServerSideProps>){
+export default function ChatRoom(){
 
     
 
@@ -174,7 +174,7 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
         <RoomTitle>{roomName}</RoomTitle>
 
         <FuncButtons>
-            <InviteBtn host={host} roomIndex={roomIndex} />
+            <InviteBtn roomIndex={roomIndex} />
             <ExitRoomBtn />
         </FuncButtons>    
         
@@ -190,13 +190,13 @@ export default function ChatRoom({host}: InferGetServerSidePropsType<typeof getS
 }
 
 
-export async function getServerSideProps({ req }: GetServerSidePropsContext) {
-    const host = req.headers.host
+// export async function getServerSideProps({ req }: GetServerSidePropsContext) {
+//     const host = req.headers.host
 
-    // const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress
-    return {
-      props: {
-        host
-      },
-    }
-  }
+//     // const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress
+//     return {
+//       props: {
+//         host
+//       },
+//     }
+//   }
