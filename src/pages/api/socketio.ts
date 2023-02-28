@@ -117,7 +117,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
           socket2.join(matchRoomIndex);
           
           io.of(namespaces.random).to(matchRoomIndex).emit('roomIndex',matchRoomIndex);
-          io.of(namespaces.random).to(matchRoomIndex).emit('notice-random', '상대방이 입장하였습니다');
+          io.of(namespaces.random).to(matchRoomIndex).emit('random-join', '상대방이 입장하였습니다');
           
         }
           
