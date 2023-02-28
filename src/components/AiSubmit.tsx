@@ -21,7 +21,7 @@ export default function AiSubmit({roomIndex}: RoomIndexObj){
 
 
     const sendMsg = (inputMsg:string) =>{
-        if(inputMsg && isChatActive){
+        if(inputMsg && isChatActive && inputMsg.length <= 1000){
             socket.emit("chat", inputMsg, `${roomIndex}`);
             setInputMsg("");
             setIsChatActive(false);

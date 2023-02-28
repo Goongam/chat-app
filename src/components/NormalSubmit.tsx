@@ -14,7 +14,7 @@ export default function NormalSubmit({roomIndex}: RoomIndexObj){
 
     const sendMsg = (inputMsg:string) =>{
         
-        if(inputMsg){
+        if(inputMsg && inputMsg.length <= 1000){
             socket.emit("chat", inputMsg, `${roomIndex}`);
             setInputMsg("");
         }     
