@@ -1,10 +1,10 @@
-import { Configuration, OpenAIApi } from "openai";
+import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 
 
 export class OpenAI{
     private configuration: Configuration;
     private openai: OpenAIApi;
-    private prompt: string[];
+    private prompt: Array<ChatCompletionRequestMessage>;
 
     constructor(){
         this.configuration = new Configuration({
@@ -15,36 +15,29 @@ export class OpenAI{
     }
 
     private async send(){
-        const response = await this.openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: this.prompt.join('\n'),
-            temperature: 0.9,
-            max_tokens: 150,
-            top_p: 1,
-            frequency_penalty: 0.0,
-            presence_penalty: 0.6,
-            stop: [" Human:", " AI:"],
+        const response = await this.openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: this.prompt,
+          });
+        
+        const receiveMsg = response.data.choices[0].message;
+        if(receiveMsg) this.appendPrompt('assistant',receiveMsg.content);
+        return receiveMsg;
+    }
+
+    private appendPrompt(role:'user'|'assistant',message: string) {
+        this.prompt.push({
+            role,
+            content:message,
         });
-    
-
-        return response.data.choices[0].text;
     }
 
-    private appendHumanPrompt(message:string){
-        this.prompt.push(`Human: ${message}`);
-        this.prompt.push('AI:');
-    }
-
-    private appendAIPrompt(message:string| undefined){
-        this.prompt[this.prompt.length-1] = this.prompt[this.prompt.length-1]+message;
-    }
     async chat(message:string){
-        this.appendHumanPrompt(message);
+        this.appendPrompt('user', message);
 
         const receiveMsg = await this.send();
-        this.appendAIPrompt(receiveMsg);
-        
-        return receiveMsg;
+
+        return receiveMsg?.content;
     }
 
 }

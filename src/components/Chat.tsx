@@ -15,6 +15,7 @@ const Message = styled.div`
     background-color: aquamarine;
     border-radius: 4px;
     padding: 5px;
+    text-align: left;
 `
 
 const Content = styled.div`
