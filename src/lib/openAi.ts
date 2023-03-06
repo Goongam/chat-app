@@ -18,8 +18,13 @@ export class OpenAI{
         const response = await this.openai.createChatCompletion({
             model: "gpt-3.5-turbo",
             messages: this.prompt,
+          }).catch((error)=>{
+            console.error('AIerror');
+
           });
-        
+
+        if(!response) return {content:'너무 많은 요청이 들어왔습니다. 잠시후 다시 이용해 주세요'};
+
         const receiveMsg = response.data.choices[0].message;
         if(receiveMsg) this.appendPrompt('assistant',receiveMsg.content);
         return receiveMsg;
