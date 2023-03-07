@@ -131,7 +131,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         io.of(namespaces.random).to(room).emit("chat",socket.id, message);
       });
 
-
       socket.emit('userName',socket.id);
 
     });

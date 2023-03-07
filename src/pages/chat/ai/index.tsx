@@ -29,16 +29,18 @@ export default function ChatRoom(){
 
     const socketInit = useCallback(async () =>{
 
+        const setUserNameListener = (name: string)=>{
+            setUserName(name);
+            socket.removeListener('userName', setUserNameListener);
+        };
+
         socket.on('roomChanged', (roomName) => {
             setRoomName(roomName);
         });
         socket.on('roomIndex',(roomIndex)=>{  
             setRoomIndex(roomIndex);
         });
-        //TODO::제거?
-        socket.on('userName',(name)=>{
-            setUserName(name);
-        })
+        socket.on('userName', setUserNameListener);
 
         window.onpopstate = e => {
             disconnect();
