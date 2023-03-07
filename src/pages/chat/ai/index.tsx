@@ -35,6 +35,7 @@ export default function ChatRoom(){
         socket.on('roomIndex',(roomIndex)=>{  
             setRoomIndex(roomIndex);
         });
+        //TODO::제거?
         socket.on('userName',(name)=>{
             setUserName(name);
         })
