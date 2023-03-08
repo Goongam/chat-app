@@ -1,6 +1,6 @@
 import { useSocket } from "@/hooks/useSocket";
 import { Chats, UserName } from "@/pages/api/types/chat";
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import styled from "styled-components";
 import Chat from "./Chat";
 import {CHATINPUTSIZE, funcBtnHeight, memberListHeight, titleHeight} from "../constants";
@@ -33,12 +33,17 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
     const [chat, setChat] = useState<Chats>(chatInit);
     const {socket} = useSocket();
 
-    useEffect(()=>{
-        if(!userName) return;
+    const chatListener = (name: string, message: string) => {
+        console.log(userName, name);       
+        setChat((prev) => [...prev, {userName: name, message, type:'chat'}]);
+    };
 
-        socket.on('chat', (name, message) => {             
-            setChat((prev) => [...prev, {userName: name, message, type:'chat'}]);
-        });
+    //const userNameMemo = useMemo(userName, [])
+
+    useEffect(()=>{
+        //if(!userName) return;
+
+        socket.on('chat', chatListener);
         socket.on('notice', (message)=>{
             setChat((prev) => [...prev, {message, type:'notice'}]);
         });
@@ -48,16 +53,16 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
         socket.on('random-join',(message)=>{
             setChat( [{message, type:'notice'}] );
         });
-        socket.on("disconnect", (reason) => {
-            setChat((prev) => [...prev, {message:`서버와 연결이 끊어졌습니다:${reason}`, type:'notice', error:true}]);
-        });
+        // socket.on("disconnect", (reason) => {
+        //     setChat((prev) => [...prev, {message:`서버와 연결이 끊어졌습니다:${reason}`, type:'notice', error:true}]);
+        // });
         socket.io.on('reconnect', () => {
             setChat((prev) => {
                 return [...prev, {message:`재 연결 되었습니다`, type:'notice'}]
             });
         });
         
-    },[socket, userName]);
+    },[socket]);
 
 
     return(

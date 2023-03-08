@@ -68,6 +68,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
           let nick = await registerUser(io, userName, roomid);
           socket.nickName = nick;
+
+          if(userName !== nick) socket.emit('userName',nick);
           
           changeRoom(socket, currentRoom, roomid);
         });
@@ -151,7 +153,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
       socket.openAI = new OpenAI();
 
-      socket.on('chat', async (message)=>{
+      socket.on('chat', async (message)=>{   
+         
         if(!socket.openAI){
           socket.emit('notice', socket.nickName, 'AI서버와 연결 실패');
           return;
@@ -194,6 +197,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     // io.of(namespaces.random).adapter.on('join-room',async (room, id) => {
     //   io.of(namespaces.random).emit('notice-random', 'join', id);
     // })
-
+    // io.of()
     res.end();
 };

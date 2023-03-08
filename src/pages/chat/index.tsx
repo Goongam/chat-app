@@ -157,6 +157,10 @@ export default function ChatRoom(){
             setRoomIndex(roomIndex);
         });
 
+        socket.on('userName',(nick)=>{
+            setUserName(nick);
+        });
+
         window.onpopstate = e => {
             disconnect();
         };
