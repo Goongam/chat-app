@@ -22,15 +22,22 @@ export function getIO(res: NextApiResponseServerIO){
 }
 
 export function getRooms(io: ServerIO){
-    const rooms = io.of('/').adapter.rooms;
-    const sids = io.of('/').adapter.sids;
-    let publicRooms:string[] = [];
-    rooms.forEach((_:any, key:string)=>{
-     if(sids.get(key) === undefined)
-       publicRooms.push(key);
-    });
+    try {
+      const rooms = io.of('/').adapter.rooms;
+      const sids = io.of('/').adapter.sids;
+      let publicRooms:string[] = [];
+      rooms.forEach((_:any, key:string)=>{
+        if(sids.get(key) === undefined)
+          publicRooms.push(key);
+      });
+
+      return publicRooms;
+    } catch (error) {
+      console.log('getRoomError:',error);
+      return [];
+    }
     
-    return publicRooms;
+    
 }
 
 export async function changeRoom(socket: Socket|RemoteSocket<DefaultEventsMap,any>, currentRoom:string, newRoom:string)  {
