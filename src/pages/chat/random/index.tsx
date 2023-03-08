@@ -28,13 +28,10 @@ export default function ChatRoom(){
 
 
     const socketInit = useCallback(async () =>{
-        const setNewUserName = ()=>{
-            const newUserName = self.crypto.randomUUID();
-            setUserName(newUserName);
-            socket.emit('userName', newUserName);
-        }
-
-        setNewUserName();
+        
+        socket.on('userName', (name)=>{
+            setUserName(name);
+        });
 
         socket.on('roomChanged', (roomName) => {
             setRoomName(roomName);

@@ -103,9 +103,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       // const noMathchSockets = io.of('/random').adapter.rooms;
       // socket.emit('userName',socket.id);
 
-      socket.on('userName',(userName)=>{
-        socket.nickName = userName;
-      });
+      socket.emit('userName', socket.id);
+      socket.nickName = socket.id;
 
       if(getNoMatchingSocket(io).length >= 2){
         let sockets = await io.of(namespaces.random).fetchSockets();
