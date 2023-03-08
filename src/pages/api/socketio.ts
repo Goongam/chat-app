@@ -24,6 +24,7 @@ export interface SocketWithNick extends Socket{
 
 export interface SocketWithAI extends Socket{
   openAI?: OpenAI,
+  nickName?: string,
 }
 
 export interface Rooms{
@@ -98,6 +99,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
   //랜덤채팅
     io.of(namespaces.random).on('connection', async (socket: SocketWithNick)=>{
       // const noMathchSockets = io.of('/random').adapter.rooms;
+      // socket.emit('userName',socket.id);
+
+      socket.on('userName',(userName)=>{
+        socket.nickName = userName;
+      });
 
       if(getNoMatchingSocket(io).length >= 2){
         let sockets = await io.of(namespaces.random).fetchSockets();
@@ -128,10 +134,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
         
         insertMsgDB(socket.handshake.address, room, message);
 
-        io.of(namespaces.random).to(room).emit("chat",socket.id, message);
+        io.of(namespaces.random).to(room).emit("chat",socket.nickName, message);
       });
 
-      socket.emit('userName',socket.id);
+      
 
     });
 
@@ -139,17 +145,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     io.of(namespaces.ai).on('connection', async (socket: SocketWithAI)=>{
       const roomIndex = await createRoomDB('ai-chat');
       socket.join(roomIndex);
-      socket.emit('userName',socket.id);
       socket.emit('roomIndex',roomIndex);
+      
+      socket.nickName = 'me';
 
       socket.openAI = new OpenAI();
 
       socket.on('chat', async (message)=>{
         if(!socket.openAI){
-          socket.emit('notice', socket.id, 'AI서버와 연결 실패');
+          socket.emit('notice', socket.nickName, 'AI서버와 연결 실패');
           return;
         }
-        socket.emit('chat', socket.id, message);
+        socket.emit('chat', socket.nickName, message);
 
         const receiveMsg = await socket.openAI.chat(message);
         socket.emit('chat', 'AI', receiveMsg);

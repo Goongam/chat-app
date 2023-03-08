@@ -28,11 +28,13 @@ export default function ChatRoom(){
 
 
     const socketInit = useCallback(async () =>{
+        const setNewUserName = ()=>{
+            const newUserName = self.crypto.randomUUID();
+            setUserName(newUserName);
+            socket.emit('userName', newUserName);
+        }
 
-        const setUserNameListener = (name: string)=>{    
-            setUserName(name);
-            socket.removeListener('userName', setUserNameListener);
-        };
+        setNewUserName();
 
         socket.on('roomChanged', (roomName) => {
             setRoomName(roomName);
@@ -40,8 +42,11 @@ export default function ChatRoom(){
         socket.on('roomIndex',(roomIndex)=>{  
             setRoomIndex(roomIndex);
         });
-        socket.on('userName', setUserNameListener);
 
+        socket.io.on('reconnect',()=>{
+            console.log('reconnect!');
+            setNewUserName();
+        });
         window.onpopstate = e => {
             disconnect();
         };

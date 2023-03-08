@@ -35,10 +35,8 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
 
     useEffect(()=>{
         if(!userName) return;
-        
-        socket.on('chat', (name, message) => {              
-            console.log('chat:',name);
-            console.log('me:',userName);
+
+        socket.on('chat', (name, message) => {             
             setChat((prev) => [...prev, {userName: name, message, type:'chat'}]);
         });
         socket.on('notice', (message)=>{
@@ -50,13 +48,20 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
         socket.on('random-join',(message)=>{
             setChat( [{message, type:'notice'}] );
         });
+        socket.on("disconnect", (reason) => {
+            setChat((prev) => [...prev, {message:`서버와 연결이 끊어졌습니다:${reason}`, type:'notice', error:true}]);
+        });
+        socket.io.on('reconnect', () => {
+            setChat((prev) => {
+                return [...prev, {message:`재 연결 되었습니다`, type:'notice'}]
+            });
+        });
         
     },[socket, userName]);
 
 
     return(
         <ScrollDiv>
-            {userName}
             <ChatContent>
             {chat.map((chat, index) =>   
                 (

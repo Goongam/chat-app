@@ -29,11 +29,7 @@ export default function ChatRoom(){
 
     const socketInit = useCallback(async () =>{
 
-        const setUserNameListener = (name: string)=>{
-            console.log('닉네임변경', name);
-            setUserName(name);
-            socket.removeListener('userName', setUserNameListener);
-        };
+        setUserName('me');
 
         socket.on('roomChanged', (roomName) => {
             setRoomName(roomName);
@@ -41,7 +37,9 @@ export default function ChatRoom(){
         socket.on('roomIndex',(roomIndex)=>{  
             setRoomIndex(roomIndex);
         });
-        socket.on('userName', setUserNameListener);
+        socket.io.on('reconnect',()=>{
+            console.log('reconnect!');
+        });
 
         window.onpopstate = e => {
             disconnect();
@@ -60,7 +58,7 @@ export default function ChatRoom(){
     }
     return (
     <ChatContainer>
-        <RoomTitle>AI채팅: {userName}</RoomTitle>
+        <RoomTitle>AI채팅</RoomTitle>
         <ExitRoomBtn />
         <ChatDiv>
             

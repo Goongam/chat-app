@@ -23,6 +23,7 @@ export interface Chat{
   message: string,
   type: 'chat'|'notice',
   isMine?:boolean
+  error?: boolean,
 }
 
 export type Chats = Array<Chat>;
