@@ -43,10 +43,10 @@ export default function ChatRoom(){
             setRoomIndex(roomIndex);
         });
 
-        socket.io.on('reconnect',()=>{
-            console.log('reconnect!');
-            setNewUserName();
-        });
+        // socket.io.on('reconnect',()=>{
+        //     console.log('reconnect!');
+        //     setNewUserName();
+        // });
         window.onpopstate = e => {
             disconnect();
         };

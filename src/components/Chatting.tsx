@@ -56,11 +56,11 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
         // socket.on("disconnect", (reason) => {
         //     setChat((prev) => [...prev, {message:`서버와 연결이 끊어졌습니다:${reason}`, type:'notice', error:true}]);
         // });
-        socket.io.on('reconnect', () => {
-            setChat((prev) => {
-                return [...prev, {message:`재 연결 되었습니다`, type:'notice'}]
-            });
-        });
+        // socket.io.on('reconnect', () => {
+        //     setChat((prev) => {
+        //         return [...prev, {message:`재 연결 되었습니다`, type:'notice'}]
+        //     });
+        // });
         
     },[socket]);
 

@@ -37,9 +37,9 @@ export default function ChatRoom(){
         socket.on('roomIndex',(roomIndex)=>{  
             setRoomIndex(roomIndex);
         });
-        socket.io.on('reconnect',()=>{
-            console.log('reconnect!');
-        });
+        // socket.io.on('reconnect',()=>{
+        //     console.log('reconnect!');
+        // });
 
         window.onpopstate = e => {
             disconnect();
