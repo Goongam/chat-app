@@ -30,6 +30,7 @@ export default function ChatRoom(){
     const socketInit = useCallback(async () =>{
 
         const setUserNameListener = (name: string)=>{
+            console.log('닉네임변경', name);
             setUserName(name);
             socket.removeListener('userName', setUserNameListener);
         };
@@ -59,7 +60,7 @@ export default function ChatRoom(){
     }
     return (
     <ChatContainer>
-        <RoomTitle>AI채팅</RoomTitle>
+        <RoomTitle>AI채팅: {userName}</RoomTitle>
         <ExitRoomBtn />
         <ChatDiv>
             

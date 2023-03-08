@@ -34,8 +34,12 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
     const {socket} = useSocket();
 
     useEffect(()=>{
-        socket.on('chat', (userName, message) => {              
-            setChat((prev) => [...prev, {userName, message, type:'chat'}]);
+        if(!userName) return;
+        
+        socket.on('chat', (name, message) => {              
+            console.log('chat:',name);
+            console.log('me:',userName);
+            setChat((prev) => [...prev, {userName: name, message, type:'chat'}]);
         });
         socket.on('notice', (message)=>{
             setChat((prev) => [...prev, {message, type:'notice'}]);
@@ -47,11 +51,12 @@ export default function Chatting({userName, chatInit = [], chatType = 'normal'}:
             setChat( [{message, type:'notice'}] );
         });
         
-    },[socket]);
+    },[socket, userName]);
 
 
     return(
         <ScrollDiv>
+            {userName}
             <ChatContent>
             {chat.map((chat, index) =>   
                 (
