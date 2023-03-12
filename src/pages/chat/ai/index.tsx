@@ -3,6 +3,7 @@ import ExitRoomBtn from "@/components/ExitRoomBtn";
 import InviteBtn from "@/components/InviteBtn";
 import NormalSubmit from "@/components/NormalSubmit";
 import RoomMembers from "@/components/RoomMembers";
+import Seo from "@/components/Seo";
 import { SubmitBtn } from "@/components/SubmitBtn";
 import { namespaces } from "@/constants";
 import { useSocket } from "@/hooks/useSocket";
@@ -58,6 +59,7 @@ export default function ChatRoom(){
     }
     return (
     <ChatContainer>
+        <Seo title="AI 채팅"/>
         <RoomTitle>AI채팅</RoomTitle>
         <ExitRoomBtn />
         <ChatDiv>

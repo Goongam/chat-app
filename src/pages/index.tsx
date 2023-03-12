@@ -8,6 +8,7 @@ import {AiFillLock, AiOutlineLoading3Quarters} from 'react-icons/ai';
 import Modal from "@/components/Modal";
 import CreateRoom from "@/components/CreateRoom";
 import { useFetchRooms } from "@/hooks/useFetchRooms";
+import Seo from "@/components/Seo";
 
 const StyleButton = styled.button`
   font-size: 1em;
@@ -130,6 +131,7 @@ export default function Home() {
 
   return (
     <HomeStyle>
+      <Seo title="채팅방 목록"/>
       {modalOpen && <Modal setModalOpen={setModalOpen}><CreateRoom /></Modal>}
       <StyleButton onClick={()=>setModalOpen(true)} color='mediumseagreen'>방만들기</StyleButton>
       <StyleButton onClick={joinRandomChat} color='mediumseagreen'>랜덤채팅</StyleButton>

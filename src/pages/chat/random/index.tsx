@@ -3,6 +3,7 @@ import ExitRoomBtn from "@/components/ExitRoomBtn";
 import InviteBtn from "@/components/InviteBtn";
 import NormalSubmit from "@/components/NormalSubmit";
 import RoomMembers from "@/components/RoomMembers";
+import Seo from "@/components/Seo";
 import { SubmitBtn } from "@/components/SubmitBtn";
 import { useSocket } from "@/hooks/useSocket";
 import { Chat } from "@/pages/api/types/chat";
@@ -61,6 +62,7 @@ export default function ChatRoom(){
     }
     return (
     <ChatContainer>
+        <Seo title="랜덤채팅"/>
         <RoomTitle>랜덤채팅</RoomTitle>
         <ExitRoomBtn />
         <ChatDiv>

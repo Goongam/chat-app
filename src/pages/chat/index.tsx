@@ -3,6 +3,7 @@ import ExitRoomBtn from "@/components/ExitRoomBtn";
 import InviteBtn from "@/components/InviteBtn";
 import NormalSubmit from "@/components/NormalSubmit";
 import RoomMembers from "@/components/RoomMembers";
+import Seo from "@/components/Seo";
 import { SubmitBtn } from "@/components/SubmitBtn";
 import { useSocket } from "@/hooks/useSocket";
 
@@ -175,6 +176,7 @@ export default function ChatRoom(){
 
     return (
     <ChatContainer>
+        <Seo title={`방: ${roomName}`} />
         <RoomTitle>{roomName}</RoomTitle>
 
         <FuncButtons>
